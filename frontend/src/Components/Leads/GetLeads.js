@@ -16,12 +16,28 @@ import {
   Space,
   notification,
 } from "antd";
-import {
-  fetchLeads,
-  refreshLeads,
-} from "../../features/data/Leads/getLeadsSlice";
+import { fetchLeads, refreshLeads } from "../../features/data/Leads/getLeadsSlice";
 import "../../index.css";
 import { updateLead } from "../../features/data/Leads/updateLeadSlice";
+
+// Custom styles for Call Schedules and Follow-ups
+const callScheduleStyle = {
+  boxShadow: "0 4px 8px rgba(0, 123, 255, 0.3)", // Blue shadow
+  borderColor: "#007bff",
+};
+
+const followUpStyle = {
+  boxShadow: "0 4px 8px rgba(40, 167, 69, 0.3)", // Green shadow
+  borderColor: "#28a745",
+};
+
+const callScheduleTextColor = {
+  color: "#007bff", // Blue text
+};
+
+const followUpTextColor = {
+  color: "#28a745", // Green text
+};
 
 const GetLeads = () => {
   const [searchId, setSearchId] = useState("");
@@ -107,9 +123,7 @@ const GetLeads = () => {
         }),
       };
 
-      await dispatch(
-        updateLead({ id: searchId, ...updatedDataWithUTC })
-      ).unwrap();
+      await dispatch(updateLead({ id: searchId, ...updatedDataWithUTC })).unwrap();
 
       notification.success({
         message: "Success",
@@ -120,8 +134,7 @@ const GetLeads = () => {
     } catch (error) {
       notification.error({
         message: "Error",
-        description:
-          error.message || "Failed to update the lead. Please try again.",
+        description: error.message || "Failed to update the lead. Please try again.",
       });
       console.error("Validation failed:", error);
     }
@@ -204,7 +217,10 @@ const GetLeads = () => {
                     <Input readOnly={!editable} />
                   </Form.Item>
                   <Form.Item name="status" label="Status">
-                    <Select placeholder="Select a status" disabled={!editable}>
+                    <Select
+                      placeholder="Select a status"
+                      disabled={!editable}
+                    >
                       {Object.entries({
                         NEW: "New",
                         IN_PROGRESS: "In Progress",
@@ -230,19 +246,27 @@ const GetLeads = () => {
                           <Card
                             size="small"
                             key={field.key}
-                            title={`Call Schedule ${index + 1}`}
-                            style={{ marginBottom: 16 }}
+                            title={
+                              <span style={callScheduleTextColor}>
+                                Call Schedule {index + 1}
+                              </span>
+                            }
+                            style={{
+                              marginBottom: 16,
+                              ...callScheduleStyle,
+                            }}
                             extra={
-                              editable &&
-                              (index >= leads.callSchedules.length ? (
-                                <Button
-                                  type="link"
-                                  onClick={() => remove(field.name)}
-                                  danger
-                                >
-                                  Remove Schedule
-                                </Button>
-                              ) : null)
+                              editable && (
+                                index >= leads.callSchedules.length ? (
+                                  <Button
+                                    type="link"
+                                    onClick={() => remove(field.name)}
+                                    danger
+                                  >
+                                    Remove Schedule
+                                  </Button>
+                                ) : null
+                              )
                             }
                           >
                             <Form.Item
@@ -302,23 +326,29 @@ const GetLeads = () => {
                                     >
                                       <Card
                                         size="small"
-                                        title={`Follow Up ${followIndex + 1}`}
-                                        style={{ marginBottom: 16 }}
+                                        title={
+                                          <span style={followUpTextColor}>
+                                            Follow Up {followIndex + 1}
+                                          </span>
+                                        }
+                                        style={{
+                                          marginBottom: 16,
+                                          ...followUpStyle,
+                                        }}
                                         extra={
-                                          editable &&
-                                          (followIndex >=
-                                          leads.callSchedules[index]?.followUps
-                                            .length ? (
-                                            <Button
-                                              type="link"
-                                              onClick={() =>
-                                                removeFollowUp(subField.name)
-                                              }
-                                              danger
-                                            >
-                                              Remove Follow-up
-                                            </Button>
-                                          ) : null)
+                                          editable && (
+                                            followIndex >= leads.callSchedules[index]?.followUps.length ? (
+                                              <Button
+                                                type="link"
+                                                onClick={() =>
+                                                  removeFollowUp(subField.name)
+                                                }
+                                                danger
+                                              >
+                                                Remove Follow-up
+                                              </Button>
+                                            ) : null
+                                          )
                                         }
                                       >
                                         <Form.Item
@@ -382,7 +412,11 @@ const GetLeads = () => {
                         ))}
                         {editable && (
                           <Form.Item>
-                            <Button type="dashed" onClick={() => add()} block>
+                            <Button
+                              type="dashed"
+                              onClick={() => add()}
+                              block
+                            >
                               Add Call Schedule
                             </Button>
                           </Form.Item>
