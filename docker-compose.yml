@@ -1,0 +1,44 @@
+version: "3.9"
+
+services:
+  backend:
+    build:
+      context: backend
+      dockerfile: Dockerfile.backend
+    ports:
+      - "8080:8080"
+    networks:
+      - app-network
+    environment:
+      DB_HOST: report-database
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.frontend
+    ports:
+      - "5000:5000"
+    networks:
+      - app-network
+    depends_on:
+      - backend
+    environment:
+      API_URL: backend
+
+
+  report-database:
+    image: mongo
+    container_name: mongo
+    volumes:
+      - database:/data/db
+    ports:
+      - 27017:27017
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  database:

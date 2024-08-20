@@ -1,0 +1,27 @@
+# Dockerfile.frontend
+
+# Use Node.js image to build and serve the app
+FROM node:20.15.0
+
+WORKDIR /app
+
+# Copy package.json and package-lock.json
+COPY package.json package-lock.json ./
+
+# Install dependencies
+RUN npm install
+
+# Copy the rest of the application files
+COPY . .
+
+# Build the application
+RUN npm run build
+
+# Install a simple HTTP server to serve the static files
+RUN npm install -g serve
+
+# Expose port 5000 to the outside world
+EXPOSE 5000
+
+# Start the app with serve
+CMD ["serve", "-s", "build", "-l", "5000"]
