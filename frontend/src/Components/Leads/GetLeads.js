@@ -322,7 +322,6 @@ const GetLeads = () => {
                                         display: "flex",
                                         marginBottom: 8,
                                       }}
-                                      align="baseline"
                                     >
                                       <Card
                                         size="small"

@@ -10,9 +10,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
 
 import java.util.Optional;
-import java.util.List;
 
-@RestController
+@RestController 
 @RequestMapping("/api/leads")
 public class LeadsController {
 
