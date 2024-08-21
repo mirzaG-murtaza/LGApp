@@ -16,27 +16,30 @@ import {
   Space,
   notification,
 } from "antd";
-import { fetchLeads, refreshLeads } from "../../features/data/Leads/getLeadsSlice";
+import {
+  fetchLeads,
+  refreshLeads,
+} from "../../features/data/Leads/getLeadsSlice";
 import "../../index.css";
 import { updateLead } from "../../features/data/Leads/updateLeadSlice";
 
-// Custom styles for Call Schedules and Follow-ups
+
 const callScheduleStyle = {
-  boxShadow: "0 4px 8px rgba(0, 123, 255, 0.3)", // Blue shadow
+  boxShadow: "0 4px 8px rgba(0, 123, 255, 0.6)",
   borderColor: "#007bff",
 };
 
 const followUpStyle = {
-  boxShadow: "0 4px 8px rgba(40, 167, 69, 0.3)", // Green shadow
+  boxShadow: "0 4px 8px rgba(40, 167, 69, 0.6)",
   borderColor: "#28a745",
 };
 
 const callScheduleTextColor = {
-  color: "#007bff", // Blue text
+  color: "#007bff",
 };
 
 const followUpTextColor = {
-  color: "#28a745", // Green text
+  color: "#28a745",
 };
 
 const GetLeads = () => {
@@ -123,7 +126,9 @@ const GetLeads = () => {
         }),
       };
 
-      await dispatch(updateLead({ id: searchId, ...updatedDataWithUTC })).unwrap();
+      await dispatch(
+        updateLead({ id: searchId, ...updatedDataWithUTC })
+      ).unwrap();
 
       notification.success({
         message: "Success",
@@ -134,7 +139,8 @@ const GetLeads = () => {
     } catch (error) {
       notification.error({
         message: "Error",
-        description: error.message || "Failed to update the lead. Please try again.",
+        description:
+          error.message || "Failed to update the lead. Please try again.",
       });
       console.error("Validation failed:", error);
     }
@@ -217,10 +223,7 @@ const GetLeads = () => {
                     <Input readOnly={!editable} />
                   </Form.Item>
                   <Form.Item name="status" label="Status">
-                    <Select
-                      placeholder="Select a status"
-                      disabled={!editable}
-                    >
+                    <Select placeholder="Select a status" disabled={!editable}>
                       {Object.entries({
                         NEW: "New",
                         IN_PROGRESS: "In Progress",
@@ -252,21 +255,20 @@ const GetLeads = () => {
                               </span>
                             }
                             style={{
-                              marginBottom: 16,
+                              marginBottom: 20,
                               ...callScheduleStyle,
                             }}
                             extra={
-                              editable && (
-                                index >= leads.callSchedules.length ? (
-                                  <Button
-                                    type="link"
-                                    onClick={() => remove(field.name)}
-                                    danger
-                                  >
-                                    Remove Schedule
-                                  </Button>
-                                ) : null
-                              )
+                              editable &&
+                              (index >= leads.callSchedules.length ? (
+                                <Button
+                                  type="link"
+                                  onClick={() => remove(field.name)}
+                                  danger
+                                >
+                                  Remove Schedule
+                                </Button>
+                              ) : null)
                             }
                           >
                             <Form.Item
@@ -319,8 +321,7 @@ const GetLeads = () => {
                                     <Space
                                       key={subField.key}
                                       style={{
-                                        display: "flex",
-                                        marginBottom: 8,
+                                        margin: 22,
                                       }}
                                     >
                                       <Card
@@ -335,19 +336,20 @@ const GetLeads = () => {
                                           ...followUpStyle,
                                         }}
                                         extra={
-                                          editable && (
-                                            followIndex >= leads.callSchedules[index]?.followUps.length ? (
-                                              <Button
-                                                type="link"
-                                                onClick={() =>
-                                                  removeFollowUp(subField.name)
-                                                }
-                                                danger
-                                              >
-                                                Remove Follow-up
-                                              </Button>
-                                            ) : null
-                                          )
+                                          editable &&
+                                          (followIndex >=
+                                          leads.callSchedules[index]?.followUps
+                                            .length ? (
+                                            <Button
+                                              type="link"
+                                              onClick={() =>
+                                                removeFollowUp(subField.name)
+                                              }
+                                              danger
+                                            >
+                                              Remove Follow-up
+                                            </Button>
+                                          ) : null)
                                         }
                                       >
                                         <Form.Item
@@ -396,7 +398,6 @@ const GetLeads = () => {
                                   {editable && (
                                     <Form.Item>
                                       <Button
-                                        type="dashed"
                                         onClick={() => addFollowUp()}
                                         block
                                       >
@@ -411,11 +412,7 @@ const GetLeads = () => {
                         ))}
                         {editable && (
                           <Form.Item>
-                            <Button
-                              type="dashed"
-                              onClick={() => add()}
-                              block
-                            >
+                            <Button onClick={() => add()} block>
                               Add Call Schedule
                             </Button>
                           </Form.Item>
