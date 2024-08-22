@@ -17,6 +17,21 @@ import { addLeads } from "../../features/data/Leads/addLeadsSlice";
 
 const { TextArea } = Input;
 
+const followUpStyle = {
+  boxShadow: "0 4px 8px rgba(96, 96, 96, 0.6)",
+  borderColor: "#e4e4e4",
+  margin: 20,
+  marginLeft: 110,
+};
+
+const callScheduleTextColor = {
+  color: "#007bff",
+};
+
+const followUpTextColor = {
+  color: "#28a745",
+};
+
 const AddLeads = () => {
   const dispatch = useDispatch();
   const { status: addLeadsStatus, error: addLeadsError } = useSelector((state) => state.addLeads);
@@ -60,7 +75,6 @@ const AddLeads = () => {
       });
   };
   
-
   return (
     <div className="form-container">
       <Form
@@ -147,9 +161,10 @@ const AddLeads = () => {
               {fields.map((field) => (
                 <Card
                   size="small"
-                  title={`Call Schedule ${field.name + 1}`}
+                  title={<span style={callScheduleTextColor}>Call Schedule {field.name + 1}</span>}
                   key={field.key}
                   extra={<CloseOutlined onClick={() => remove(field.name)} />}
+                  className="callScheduleStyle"
                 >
                   <Form.Item
                     rules={[{ required: true, message: "Please input!" }]}
@@ -180,16 +195,21 @@ const AddLeads = () => {
                   >
                     <Input />
                   </Form.Item>
-                  <Form.Item
-                    name={[field.name, "callCategory"]}
-                    rules={[{ required: true, message: "Please select!" }]}
+                  <Form.Item 
+                  name={[field.name, "callCategory"]} 
+                  rules={[{ required: true, message: "Please select!" }]}
+                  label="Call Category"
                   >
                     <Radio.Group>
                       <Radio value="hr"> HR Round </Radio>
                       <Radio value="technical"> Technical Round </Radio>
                     </Radio.Group>
                   </Form.Item>
-                  <Form.Item name={[field.name, "callDate"]}>
+                  <Form.Item 
+                  name={[field.name, "callDate"]}
+                  label="Call Date"
+                  rules={[{ required: true, message: "Please select!" }]}
+                  >
                     <DatePicker />
                   </Form.Item>
 
@@ -198,57 +218,73 @@ const AddLeads = () => {
                       subFields,
                       { add: addFollowUp, remove: removeFollowUp }
                     ) => (
-                      <div className="followUpsContainer">
+                      <div>
                         {subFields.map((subField) => (
                           <Space key={subField.key}>
-                            <Form.Item
-                              name={[
-                                subField.name,
-                                "followupDate",
-                              ]}
+                            <Card
+                              size="small"
+                              title={<span style={followUpTextColor}>Follow Up {subField.name + 1}</span>}
+                              style={followUpStyle}
+                              extra={
+                                <Button
+                                  type="link"
+                                  onClick={() => removeFollowUp(subField.name)}
+                                  danger
+                                >
+                                  Remove Follow Up
+                                </Button>
+                              }
                             >
-                              <DatePicker />
-                            </Form.Item>
-                            <Form.Item
-                              name={[
-                                subField.name,
-                                "callNotes",
-                              ]}
-                            >
-                              <Input placeholder="Follow Up Notes" />
-                            </Form.Item>
-                            <Form.Item
-                              name={[
-                                subField.name,
-                                "status",
-                              ]}
-                              label="Status"
-                            >
-                              <Select placeholder="Select a status">
-                                {statusOptions.map((option) => (
-                                  <Select.Option
-                                    key={option.value}
-                                    value={option.value}
-                                  >
-                                    {option.label}
-                                  </Select.Option>
-                                ))}
-                              </Select>
-                            </Form.Item>
-                            <Button
+                              <Form.Item
+                                name={[
+                                  subField.name,
+                                  "followupDate",
+                                ]}
+                                label="Follow Up Date"
+                              >
+                                <DatePicker />
+                              </Form.Item>
+                              <Form.Item
+                                name={[
+                                  subField.name,
+                                  "callNotes",
+                                ]}
+                                label="Follow Up Notes"
+                              >
+                                <Input placeholder="Follow Up Notes" />
+                              </Form.Item>
+                              <Form.Item
+                                name={[
+                                  subField.name,
+                                  "status",
+                                ]}
+                                label="Follow Up Status"
+                              >
+                                <Select placeholder="Select a status">
+                                  {statusOptions.map((option) => (
+                                    <Select.Option
+                                      key={option.value}
+                                      value={option.value}
+                                    >
+                                      {option.label}
+                                    </Select.Option>
+                                  ))}
+                                </Select>
+                              </Form.Item>
+                            </Card>
+                            {/* <Button
                               type="primary"
                               danger
                               onClick={() => removeFollowUp(subField.name)}
                             >
                               Remove Follow Up
-                            </Button>
+                            </Button> */}
                           </Space>
                         ))}
                         <Button
-                          type="dashed"
                           onClick={() => addFollowUp()}
                           block
-                          style={{ borderColor: "green", color: "green" }}
+                          className="addButtons"
                         >
                           Add Follow Up
                         </Button>
@@ -258,10 +294,9 @@ const AddLeads = () => {
                 </Card>
               ))}
               <Button
-                type="dashed"
                 onClick={() => add()}
                 block
-                style={{ borderColor: "green", color: "green" }}
+                className="addButtons"
               >
                 Add Call Schedule
               </Button>

@@ -7,12 +7,12 @@
   min-height: 100vh; /* Centers the form vertically */
   padding-top: 50px; /* Adds more space from the top */
   padding-bottom: 50px; /* Adds space at the bottom */
-  background-color: #f5f5f5; /* Optional: Add a background color to make the form stand out */
+  background-color: #f9f9f9; /* Optional: Add a background color to make the form stand out */
 }
 
 .ant-form {
   width: 100%;
-  max-width: 600px; /* Restrict the form's maximum width */
+  max-width: 50%; /* Restrict the form's maximum width */
   background-color: #ffffff; /* Optional: White background for the form */
   padding: 20px; /* Add padding inside the form */
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Optional: Add a subtle shadow */
@@ -24,17 +24,24 @@
 }
 
 .ant-btn-primary {
-  display: block;
-  margin: 30px auto 0 auto; /* Center the submit button with space at the top */
+  margin: 5%
 }
 
 .followUpsContainer {
   display: flex;
-  flex-direction: column;
-  row-gap: 16px;
-  border: 1px solid #d9d9d9; /* Light grey border similar to Ant Design */
-  border-radius: 4px; /* Slightly rounded corners */
-  padding: 16px; /* Padding inside the div */
+  border: 2px solid #d9d9d9; /* Light grey border similar to Ant Design */
+  border-radius: 6px; /* Slightly rounded corners */
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15); /* Subtle shadow effect */
   background-color: #fff; /* Ensure background is white */
+}
+
+.callScheduleStyle {
+  align-items: center;
+  box-Shadow: 0 4px 8px rgba(121, 121, 121, 0.6);
+  border-Color: #007bff,
+};
+
+.addButtons{
+  border-color: green;
+  color: green 
 }
