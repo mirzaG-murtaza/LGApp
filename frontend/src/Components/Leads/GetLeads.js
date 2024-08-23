@@ -20,7 +20,6 @@ import {
   fetchLeads,
   refreshLeads,
 } from "../../features/data/Leads/getLeadsSlice";
-import "../../index.css";
 import { updateLead } from "../../features/data/Leads/updateLeadSlice";
 
 
@@ -150,7 +149,10 @@ const GetLeads = () => {
     <React.Fragment>
       <Card title="Search Lead by ID">
         <Form layout="inline">
-          <Form.Item label="Lead ID">
+          <Form.Item 
+          label="Lead ID"
+          style={{ marginLeft: 16 }}
+          >
             <Input
               value={searchId}
               onChange={(e) => setSearchId(e.target.value)}
@@ -407,7 +409,7 @@ const GetLeads = () => {
                                   )}
                                 </>
                               )}
-                            </Form.List>
+                            </Form.List> 
                           </Card>
                         ))}
                         {editable && (
