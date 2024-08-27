@@ -1,6 +1,5 @@
 package com.example.demo.entity;
 
-import org.springframework.data.annotation.Id;
 import java.time.LocalDateTime;
 import java.util.List;
 

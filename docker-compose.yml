@@ -12,6 +12,16 @@ services:
     environment:
       DB_HOST: report-database
 
+  manager:
+    build:
+      context: manager
+      dockerfile: Dockerfile.manager
+    ports:
+      - "8081:8081"
+    networks:
+      - app-network
+    environment:
+      DB_HOST: db
   frontend:
     build:
       context: ./frontend
@@ -36,9 +46,24 @@ services:
     networks:
       - app-network
 
+  db:
+    image: postgres:latest
+    container_name: my_postgres
+    environment:
+      POSTGRES_DB: testdb
+      POSTGRES_USER: mynewuser
+      POSTGRES_PASSWORD: mypassword
+    ports:
+      - "32700:5432" # Maps host port 32700 to container port 5432
+    volumes:
+      - pgdata_0:/var/lib/postgresql/data
+    networks:
+      - app-network
+
 networks:
   app-network:
     driver: bridge
 
 volumes:
   database:
+  pgdata_0:
