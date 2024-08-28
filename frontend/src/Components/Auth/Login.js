@@ -11,13 +11,19 @@ const cardStyle = {
 const Login = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const token = useSelector((state) => state.auth.token);
   const { status, error } = useSelector((state) => state.auth);
 
   const onFinish = (credentials) => {
     dispatch(login(credentials));
-    
-    navigate('/');
   };
+
+  useEffect(() => {
+    console.log("Token:", token);
+    if (token) {
+      navigate('/');
+    }
+  }, [token, navigate]);
 
   return (
     <Row justify="center" style={{ marginTop: 100 }}>
@@ -62,13 +68,8 @@ const Login = () => {
             )}
 
             <Form.Item>
-              <Button
-                type="primary"
-                htmlType="submit"
-                block
-                disabled={status === "loading"}
-              >
-                Login
+              <Button type="primary" htmlType="submit" loading={status === "loading"}>
+                Log in
               </Button>
             </Form.Item>
           </Form>

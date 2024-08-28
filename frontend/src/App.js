@@ -11,7 +11,7 @@ import { logout } from "./features/auth/authSlice"; // Import the logout action
 
 const App = () => {
   const [current, setCurrent] = useState("home");
-  const token = useSelector((state) => state.auth.token); // Get token from state
+  const token = useSelector((state) => state.auth); // Get token from state
   const dispatch = useDispatch();
 
   const onClick = (e) => {
@@ -23,7 +23,8 @@ const App = () => {
   };
 
   useEffect(() => {
-  }, [token])
+    console.log('Token in app.js', token)
+}, [token])
   
 
   return (
@@ -47,8 +48,8 @@ const App = () => {
       )}
       <Routes>
         <Route path="/login" element={<Login />} />
-        <Route path="/createLeads" element={<ProtectedRoute><AddLeads /></ProtectedRoute>} />
-        <Route path="/" element={<ProtectedRoute><GetLeads /></ProtectedRoute>} />
+        <Route path="/" element={<ProtectedRoute><AddLeads /></ProtectedRoute>} />
+        <Route path="/getLeads" element={<ProtectedRoute><GetLeads /></ProtectedRoute>} />
         <Route path="*" element={token ? <Navigate to="/" /> : <Navigate to="/login" />} />
       </Routes>
     </Router>
