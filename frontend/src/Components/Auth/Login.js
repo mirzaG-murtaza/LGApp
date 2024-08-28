@@ -1,19 +1,22 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Form, Input, Button, Card, Spin, Alert, Row, Col } from "antd";
 import { login } from "../../features/auth/authSlice";
+import { useNavigate } from "react-router-dom";
 
 const cardStyle = {
   boxShadow: "0 4px 8px rgba(0, 123, 255, 0.6)",
-  borderColor: "#007bff",
 };
 
 const Login = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { status, error } = useSelector((state) => state.auth);
 
-  const onFinish = (values) => {
-    dispatch(login(values));
+  const onFinish = (credentials) => {
+    dispatch(login(credentials));
+    
+    navigate('/');
   };
 
   return (
@@ -59,7 +62,12 @@ const Login = () => {
             )}
 
             <Form.Item>
-              <Button type="primary" htmlType="submit" block>
+              <Button
+                type="primary"
+                htmlType="submit"
+                block
+                disabled={status === "loading"}
+              >
                 Login
               </Button>
             </Form.Item>
