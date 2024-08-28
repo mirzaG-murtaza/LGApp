@@ -1,10 +1,10 @@
 import axios from 'axios';
 
-const api = axios.create({
-  baseURL: 'http://localhost:8080/api',
+const identityApi = axios.create({
+  baseURL: 'http://localhost:8081/auth',
 });
 
-api.interceptors.request.use(
+identityApi.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
     if (token) {
@@ -17,4 +17,4 @@ api.interceptors.request.use(
   }
 );
 
-export default api;
+export default identityApi;

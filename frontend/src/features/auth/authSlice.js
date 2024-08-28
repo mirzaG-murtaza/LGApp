@@ -1,13 +1,11 @@
-// src/features/auth/authSlice.js
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import api from '../../utils/api';
-
+import identityApi from '../../utils/identityApi';
 
 export const login = createAsyncThunk(
   'auth/login',
   async (credentials, { rejectWithValue }) => {
     try {
-      const response = await api.post('/login', credentials);
+      const response = await identityApi.post('/login', credentials);
       const { token } = response.data;
       localStorage.setItem('token', token);
       return token;
@@ -17,7 +15,6 @@ export const login = createAsyncThunk(
   }
 );
 
-
 export const logout = createAsyncThunk('auth/logout', async () => {
   localStorage.removeItem('token'); 
   return true;
@@ -26,7 +23,7 @@ export const logout = createAsyncThunk('auth/logout', async () => {
 const authSlice = createSlice({
   name: 'auth',
   initialState: {
-    token: null,
+    token: localStorage.getItem('token') || null,  // Check for token in localStorage
     status: 'idle',
     error: null,
   },
