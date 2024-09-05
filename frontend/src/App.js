@@ -13,14 +13,22 @@ const App = () => {
   const [current, setCurrent] = useState("home");
   const token = useSelector((state) => state.auth); // Get token from state
   const dispatch = useDispatch();
+  const locToken = localStorage.getItem('token')
 
   const onClick = (e) => {
     setCurrent(e.key);
   };
 
   const handleLogout = () => {
-    dispatch(logout()); // Dispatch the logout action
+    dispatch(logout());
   };
+
+  useEffect(() => {
+    if(!locToken){
+      dispatch(logout());
+    }
+  }, [locToken, dispatch])
+  
 
   useEffect(() => {
     console.log('Token in app.js', token)
@@ -29,7 +37,7 @@ const App = () => {
 
   return (
     <Router>
-      {token && ( // Conditionally render Navbar if the user is logged in
+      {locToken && token &&(
         <Menu
           onClick={onClick}
           selectedKeys={[current]}

@@ -1,19 +1,29 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import api from '../../../utils/api';
 
-
 export const fetchLeads = createAsyncThunk(
   'leads/fetchLeads',
-  async (leadsId, { rejectWithValue }) => {
+  async ({ leadsId }, { rejectWithValue }) => {
     try {
-      const response = await api.get(`/leads/${leadsId}`);
+      // Fetch the token from localStorage
+      const token = localStorage.getItem('token');
+      
+      // If token doesn't exist, you may want to handle it (e.g., reject the action)
+      if (!token) {
+        return rejectWithValue('No token found');
+      }
+
+      const response = await api.get(`/leads/${leadsId}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`, // Add the Bearer token here
+        },
+      });
       return response.data;
     } catch (error) {
-      return rejectWithValue(error.response.data);
+      return rejectWithValue(error.response?.data || 'Something went wrong');
     }
   }
 );
-
 
 const leadsSlice = createSlice({
   name: 'leads',

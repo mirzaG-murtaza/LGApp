@@ -81,7 +81,7 @@ const GetLeads = () => {
 
   const handleSearch = () => {
     if (searchId) {
-      dispatch(fetchLeads(searchId));
+      dispatch(fetchLeads({leadsId: searchId}));
     }
   };
 
@@ -262,7 +262,7 @@ const GetLeads = () => {
                             }}
                             extra={
                               editable &&
-                              (index >= leads.callSchedules.length ? (
+                              (index >= leads?.callSchedules?.length ? (
                                 <Button
                                   type="link"
                                   onClick={() => remove(field.name)}
@@ -339,19 +339,16 @@ const GetLeads = () => {
                                         }}
                                         extra={
                                           editable &&
-                                          (followIndex >=
-                                          leads.callSchedules[index]?.followUps
-                                            .length ? (
+                                          leads?.callSchedules?.[index]?.followUps &&
+                                          followIndex >= leads.callSchedules[index].followUps.length ? (
                                             <Button
                                               type="link"
-                                              onClick={() =>
-                                                removeFollowUp(subField.name)
-                                              }
+                                              onClick={() => removeFollowUp(subField.name)}
                                               danger
                                             >
                                               Remove Follow-up
                                             </Button>
-                                          ) : null)
+                                          ) : null
                                         }
                                       >
                                         <Form.Item

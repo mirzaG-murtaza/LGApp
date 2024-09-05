@@ -43,6 +43,15 @@ public class Leads {
     private String coordinatorName;
     private Status status;
     private String description;
+    private String userId;
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
     private List<CallSchedules> callSchedules;
 
 

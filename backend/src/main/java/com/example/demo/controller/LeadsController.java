@@ -3,26 +3,94 @@ package com.example.demo.controller;
 import com.example.demo.entity.Leads;
 import com.example.demo.repository.LeadsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.ResponseEntity;
-import org.springframework.http.HttpStatus;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestTemplate;
 
+import java.util.Map;
 import java.util.Optional;
+import java.util.List;
 
-@RestController 
+@RestController
 @RequestMapping("/api/leads")
 public class LeadsController {
 
     @Autowired
     private LeadsRepository leadsRepository;
 
+    @Autowired
+    private RestTemplate restTemplate;
+
+    @Value("${validation.uri}")
+    private String validationUri;
+
     private static final Logger logger = LoggerFactory.getLogger(LeadsController.class);
 
+    private Map<String, Object> validateToken(String token) { 
+        String validationUrl = "http://"+validationUri+":8081/auth/validateToken";
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", token);
+
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+
+        logger.info("HTTP Entity created: {}", entity);
+
+        try {
+            logger.info("Making HTTP GET request to: {}", validationUrl);
+            ResponseEntity<Map> response = restTemplate.exchange(
+                    validationUrl,
+                    HttpMethod.GET,
+                    entity,
+                    Map.class
+            );
+
+            if (response.getStatusCode() == HttpStatus.OK) {
+                Map<String, Object> responseBody = response.getBody();
+                logger.info("Response body after successful status check: {}", responseBody);
+                if (responseBody != null && "success".equals(responseBody.get("status"))) {
+                    logger.info("Token validation succeeded for user: {}", responseBody.get("user"));
+                    return (Map<String, Object>) responseBody.get("user");
+                }
+            } else {
+                logger.warn("Received non-OK response status: {}", response.getStatusCode());
+            }
+        } catch (HttpClientErrorException e) {
+            logger.error("HTTPClientErrorException during token validation: {}", e.getResponseBodyAsString());
+            logger.error("HTTPClientErrorException details: ", e);
+        } catch (RestClientException e) {
+            logger.error("RestClientException during token validation", e);
+        } catch (Exception e) {
+            logger.error("Unexpected error during token validation", e);
+        }
+
+        logger.warn("Token validation failed, returning null");
+        return null;
+    }
+
+
+
+    private boolean hasPermission(Map<String, Object> userDetails, String permission) {
+        List<String> permissions = (List<String>) userDetails.get("permissions");
+        return permissions != null && permissions.contains(permission);
+    }
+
     @GetMapping("/{leadsId}")
-    public ResponseEntity<Leads> getLeadsById(@PathVariable String leadsId) {
-        logger.info("Fetching leads with ID: {}", leadsId);
+    public ResponseEntity<Leads> getLeadsById(
+            @PathVariable String leadsId,
+            @RequestHeader("Authorization") String token) {
+
+        Map<String, Object> userDetails = validateToken(token);
+        if (userDetails == null || !hasPermission(userDetails, "READ:LEAD")) {
+            logger.warn("Unauthorized access attempt with token: {}", token);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+        }
+
         Optional<Leads> leads = leadsRepository.findById(leadsId);
 
         if (leads.isPresent()) {
@@ -35,20 +103,43 @@ public class LeadsController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<Leads> createLeads(@RequestBody Leads leads) {
+    public ResponseEntity<Leads> createLeads(
+            @RequestBody Leads leads,
+            @RequestHeader("Authorization") String token) {
+
+        logger.info("HTTP POST request received to create a new leads");
+        logger.info("Authorization header: {}", token);
+        logger.info("Request Body: {}", leads);
+
+        Map<String, Object> userDetails = validateToken(token);
+        if (userDetails == null || !hasPermission(userDetails, "WRITE:LEAD")) {
+            logger.warn("Unauthorized access attempt to create leads with token: {}", token);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+        }
+
         leads.setId(null);
-        logger.info("Creating a new leads");
         Leads savedLeads = leadsRepository.save(leads);
         logger.info("Leads created with ID: {}", savedLeads.getId());
         return ResponseEntity.status(HttpStatus.CREATED).body(savedLeads);
     }
 
     @PutMapping("/update/{leadsId}")
-    public ResponseEntity<Leads> updateLeads(@PathVariable String leadsId, @RequestBody Leads leadsDetails) {
-        logger.info("Updating leads with ID: {}", leadsId);
-        Optional<Leads> leadsOptional = leadsRepository.findById(leadsId);
-        logger.info("Received Leads Details: {}", leadsDetails);
+    public ResponseEntity<Leads> updateLeads(
+            @PathVariable String leadsId,
+            @RequestBody Leads leadsDetails,
+            @RequestHeader("Authorization") String token) {
 
+        logger.info("HTTP PUT request received to update leads with ID: {}", leadsId);
+        logger.info("Authorization header: {}", token);
+        logger.info("Request Body: {}", leadsDetails);
+
+        Map<String, Object> userDetails = validateToken(token);
+        if (userDetails == null || !hasPermission(userDetails, "WRITE:LEAD")) {
+            logger.warn("Unauthorized access attempt to update leads with token: {}", token);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+        }
+
+        Optional<Leads> leadsOptional = leadsRepository.findById(leadsId);
 
         if (leadsOptional.isPresent()) {
             Leads existingLeads = leadsOptional.get();
