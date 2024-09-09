@@ -161,4 +161,18 @@ public class LeadsController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
     }
+    @GetMapping("/allLeads")
+    public ResponseEntity<List<Leads>> getAllLeads(@RequestHeader("Authorization") String token) {
+        
+        Map<String, Object> userDetails = validateToken(token);
+        if (userDetails == null || !hasPermission(userDetails, "READ:LEAD")) {
+            logger.warn("Unauthorized access attempt to get all leads with token: {}", token);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+        }
+
+        List<Leads> allLeads = leadsRepository.findAll();
+        logger.info("Fetched all leads: {}", allLeads);
+        return ResponseEntity.ok(allLeads);
+    }
+
 }

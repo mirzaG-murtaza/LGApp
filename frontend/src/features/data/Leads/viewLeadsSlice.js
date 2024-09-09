@@ -1,19 +1,18 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import api from '../../../utils/api';
 
-export const fetchLeads = createAsyncThunk(
-  'leads/fetchLeads',
-  async ({ leadsId }, { rejectWithValue }) => {
+export const viewLeads = createAsyncThunk(
+  'leads/viewLeads',
+  async (_, { rejectWithValue }) => {
     try {
       const token = localStorage.getItem('token');
-      
       if (!token) {
         return rejectWithValue('No token found');
       }
 
-      const response = await api.get(`/leads/${leadsId}`, {
+      const response = await api.get('/leads/allLeads', {
         headers: {
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
       });
       return response.data;
@@ -23,8 +22,8 @@ export const fetchLeads = createAsyncThunk(
   }
 );
 
-const leadsSlice = createSlice({
-  name: 'leads',
+const viewLeadsSlice = createSlice({
+  name: 'allLeads',
   initialState: {
     data: [],
     status: 'idle',
@@ -39,19 +38,19 @@ const leadsSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(fetchLeads.pending, (state) => {
+      .addCase(viewLeads.pending, (state) => {
         state.status = 'loading';
       })
-      .addCase(fetchLeads.fulfilled, (state, action) => {
+      .addCase(viewLeads.fulfilled, (state, action) => {
         state.status = 'succeeded';
         state.data = action.payload;
       })
-      .addCase(fetchLeads.rejected, (state, action) => {
+      .addCase(viewLeads.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.payload;
       });
   },
 });
 
-export const { refreshLeads } = leadsSlice.actions;
-export default leadsSlice.reducer;
+export const { refreshLeads } = viewLeadsSlice.actions;
+export default viewLeadsSlice.reducer;
