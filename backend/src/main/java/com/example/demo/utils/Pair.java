@@ -1,4 +1,4 @@
-package org.report.utils;
+package com.example.demo.utils;
 
 import java.io.Serializable;
 

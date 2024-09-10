@@ -1,4 +1,4 @@
-package org.report.utils;
+package com.example.demo.utils;
 
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 

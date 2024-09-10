@@ -1,4 +1,4 @@
-package org.report.utils;
+package com.example.demo.utils;
 
 public class Node{
     private String data;
