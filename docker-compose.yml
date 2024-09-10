@@ -16,7 +16,7 @@ services:
 
   manager:
     build:
-      context: manager
+      context: identityManager
       dockerfile: Dockerfile.manager
     ports:
       - "8081:8081"

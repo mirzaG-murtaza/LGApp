@@ -43,7 +43,7 @@ public class CommonUtils {
         }
     }
 
-    public String getDateAsString(){// YYYY/MM/DD/
+    public String getDateAsString(){
 
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd");
         LocalDateTime now = LocalDateTime.now();
