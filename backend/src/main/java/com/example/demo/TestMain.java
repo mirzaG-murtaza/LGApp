@@ -29,9 +29,7 @@ public class TestMain {
         }
 
         ConfigurableApplicationContext context = SpringApplication.run(TestMain.class, args);
-
-
-
+        
     }
 
 
