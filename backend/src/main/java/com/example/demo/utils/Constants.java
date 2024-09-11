@@ -109,52 +109,28 @@ public class Constants {
         functionalOperators.put("Days","Computation");
 
 
-        mongoFieldMap.put("'Description'",	"'$propertyDescription'");
-        mongoFieldMap.put("'Annual Tax'",	"'$tax.latestYearAssessmentTaxes.totalTax'");
-        mongoFieldMap.put("'Tax Assd Value'",	"'$tax.latestYearAssessmentTaxes.assessedValueTotal'");
-        mongoFieldMap.put("'DOMTS'",	"'$DOMTS'");
-        mongoFieldMap.put("'Sold Price'",	"'$soldPrice'");
-        mongoFieldMap.put("'Sold Date'",	"'$soldDate'");
-        mongoFieldMap.put("'Listed $/Sq Ft'",	"'$lstSqFt'");
-        mongoFieldMap.put("'Sold $/Sq. Ft'",	"'$lstSqFt'");
-        mongoFieldMap.put("'DOMPTS'",	"'$DOMPTS'");
-        mongoFieldMap.put("'Remarks'",	"'$privateRemarks'");
-        mongoFieldMap.put("'Keywords'",	"'$Keywords dcoument link '");
-        mongoFieldMap.put("'Listing Officer'",	"'$lo'");
-        mongoFieldMap.put("'Listing Agent'",	"'$la'");
-        mongoFieldMap.put("'ISD'",	"'$schoolDist'");
-        mongoFieldMap.put("'Cooling Type'",	"'$tax.characteristics.Cooling Type'");
-        mongoFieldMap.put("'Heating Type'",	"'$tax.characteristics.Heating Type'");
-        mongoFieldMap.put("'Aslo4Lease'",	"'$alsoForLease'");
-        mongoFieldMap.put("'Bed'",	"'$bedrooms'");
-        mongoFieldMap.put("'CDOM'",	"'$cdom'");
-        mongoFieldMap.put("'City'",	"'$city'");
-        mongoFieldMap.put("'County'",	"'$county'");
-        mongoFieldMap.put("'DOM'",	"'$dom'");
-        mongoFieldMap.put("'Foundation'",	"'$foundation'");
-        mongoFieldMap.put("'Full Baths'",	"'$fullBaths'");
-        mongoFieldMap.put("'Garage Space'",	"'$garSpaces'");
-        mongoFieldMap.put("'Half Baths'",	"'$halfBaths'");
-        mongoFieldMap.put("'Type'",	"'$housingType'");
-        mongoFieldMap.put("'Conf. Score'",	"'$tax.latestEstimatedTaxMap.confidenceScore'");
-        mongoFieldMap.put("'MLS AVM Low'",	"'$tax.latestEstimatedTaxMap.estimatedValueRangeLow'");
-        mongoFieldMap.put("'Forecast SD'",	"'$tax.latestEstimatedTaxMap.forecastStandardDeviation'");
-        mongoFieldMap.put("'MLS AVM'",	"'$tax.latestEstimatedTaxMap.realAVMO'");
-        mongoFieldMap.put("'MLS AVM High'",	"'$tax.latestEstimatedTaxMap.estimatedValueRangeHigh'");
-        mongoFieldMap.put("'Listing Price'",	"'$latestLP'");
-        mongoFieldMap.put("'Buyer Name'",	"'$history.latestSaleHistoryFromPublicRecords.buyerNameS'");
-        mongoFieldMap.put("'Seller Name'",	"'$history.latestSaleHistoryFromPublicRecords.sellerNameS'");
-        mongoFieldMap.put("'Status'",	"'$latestStatus'");
-        mongoFieldMap.put("'Price/Sq. Ft'",	"'$lstSqFt'");
-        mongoFieldMap.put("'Orig. LP'",	"'$origLP'");
-        mongoFieldMap.put("'Pool'",	"'$pool'");
-        mongoFieldMap.put("'Private Rmks'",	"'$privateRemarks'");
-        mongoFieldMap.put("'Redfn Estimate'",	"'$redFinEstimate.estimate'");
-        mongoFieldMap.put("'Sq Feet'",	"'$sqFt'");
-        mongoFieldMap.put("'Stories'",	"'$stories'");
-        mongoFieldMap.put("'Exemptions'",	"'$tax.exemptions'");
-        mongoFieldMap.put("'Bath'",	"'$totBaths'");
-        mongoFieldMap.put("'Zip Code'",	"'$zipcode'");
+        mongoFieldMap.put("'Company Name'", "'$companyName'");
+        mongoFieldMap.put("'Inviter Name'", "'$inviterName'");
+        mongoFieldMap.put("'Tech Stack'", "'$techStackName'");
+        mongoFieldMap.put("'BD Name'", "'$bdName'");
+        mongoFieldMap.put("'Dev Name'", "'$devName'");
+        mongoFieldMap.put("'Profile Name'", "'$profileName'");
+        mongoFieldMap.put("'Coordinator Name'", "'$coordinatorName'");
+        mongoFieldMap.put("'Status'", "'$status'");
+        mongoFieldMap.put("'Description'", "'$description'");
+        mongoFieldMap.put("'First Contact Date'", "'$firstContactDate'");
+        mongoFieldMap.put("'Call Date'", "'$callSchedules.callDate'");
+        mongoFieldMap.put("'Call Notes'", "'$callSchedules.notes'");
+        mongoFieldMap.put("'Lead Company Name'", "'$callSchedules.leadCompanyName'");
+        mongoFieldMap.put("'Call Category'", "'$callSchedules.callCategory'");
+        mongoFieldMap.put("'Followup Date'", "'$callSchedules.followUps.followupDate'");
+        mongoFieldMap.put("'Followup Notes'", "'$callSchedules.followUps.callNotes'");
+        mongoFieldMap.put("'Followup Status'", "'$callSchedules.followUps.status'");
+        mongoFieldMap.put("'User ID'", "'$userId'");
+
+
+
+
 
         PRECEDENCE.add("*");
         PRECEDENCE.add("/");

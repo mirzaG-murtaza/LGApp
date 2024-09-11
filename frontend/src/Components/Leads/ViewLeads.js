@@ -17,19 +17,9 @@ const followUpStyle = {
 
 const ViewLeads = () => {
   const dispatch = useDispatch();
-  const {
-    data: allLeads,
-    status,
-    error,
-  } = useSelector((state) => state.viewLeads);
-  const {
-    data: searchResults,
-    status: searchStatus,
-    error: searchError,
-  } = useSelector((state) => state.searchLeads);
+  const { data: allLeads, status, error } = useSelector((state) => state.viewLeads);
 
   const [selectedFilter, setSelectedFilter] = useState(null);
-  const [filterValues, setFilterValues] = useState([]);
   const [selectedItem, setSelectedItem] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -43,23 +33,20 @@ const ViewLeads = () => {
     }
   }, [searchQuery, dispatch]);
 
-  useEffect(() => {
-    if (allLeads && selectedFilter) {
-      const uniqueValues = [
-        ...new Set(allLeads.map((lead) => lead[selectedFilter])),
-      ].filter(Boolean);
-      setFilterValues(uniqueValues);
-    }
-  }, [allLeads, selectedFilter]);
-
   const handleButtonClick = (filter) => {
     setSelectedFilter(filter);
-    setSelectedItem(null); // Reset selected item when filter changes
+    setSelectedItem(null);
   };
 
-  const handleCardClick = (value) => {
-    const leadsForItem = allLeads.filter((lead) => lead[selectedFilter] === value);
-    setSelectedItem({ value, leads: leadsForItem });
+  // Handle card click for viewing lead details (both in default view and filtered view)
+  const handleCardClick = (id, value) => {
+    let leadsForItem;
+    if (selectedFilter) {
+      leadsForItem = allLeads.filter((lead) => lead[selectedFilter] === value);
+    } else {
+      leadsForItem = allLeads.filter((lead) => lead.id === id);
+    }
+    setSelectedItem({ value: id, leads: leadsForItem });
   };
 
   const handleBackClick = () => {
@@ -67,24 +54,45 @@ const ViewLeads = () => {
     setSelectedFilter(null);
   };
 
+  // Handle search submission
   const handleSearch = (e) => {
     e.preventDefault();
     setSearchQuery(e.target.search.value);
   };
 
+  // Render the default view (group by lead id)
+  const renderDefaultView = () => {
+    return allLeads.map((lead) => (
+      <Card
+        key={lead.id}
+        style={{ marginBottom: 16, cursor: "pointer" }}
+        onClick={() => handleCardClick(lead.id)} // Card is clickable to show full details
+      >
+        <div><strong>Company Name:</strong> {lead.companyName}</div>
+        <div><strong>Tech Stack:</strong> {lead.techStackName}</div>
+        <div><strong>BD Name:</strong> {lead.bdName}</div>
+        <div><strong>Developer:</strong> {lead.devName}</div>
+        <div><strong>Profile:</strong> {lead.profileName}</div>
+        <div><strong>Coordinator:</strong> {lead.coordinatorName}</div>
+        <div><strong>Status:</strong> {lead.status}</div>
+      </Card>
+    ));
+  };
+
+  // Render the filtered cards when a filter is selected
   const renderFilterCards = () => {
-    const values = searchQuery ? searchResults : filterValues;
-    return values.map((value) => {
-      // Get the list of lead names for this filter value
+    const filterValues = [...new Set(allLeads.map((lead) => lead[selectedFilter]))].filter(Boolean);
+
+    return filterValues.map((value) => {
       const leadNames = allLeads
         .filter((lead) => lead[selectedFilter] === value)
-        .map((lead) => lead.companyName); // Adjust this based on which field you want to display
-      
+        .map((lead) => lead.companyName);
+
       return (
         <Card
           key={value}
-          style={{ marginBottom: 16, cursor: 'pointer' }}
-          onClick={() => handleCardClick(value)}
+          style={{ marginBottom: 16, cursor: "pointer" }}
+          onClick={() => handleCardClick(null, value)}
         >
           <div><strong>{value}</strong></div>
           <ul>
@@ -97,6 +105,7 @@ const ViewLeads = () => {
     });
   };
 
+  // Render detailed view of a selected lead
   const renderLeadDetails = () => {
     if (!selectedItem) return null;
 
@@ -241,11 +250,11 @@ const ViewLeads = () => {
       </Row>
       <Row gutter={20}>
         <Col span={24}>
-          <Card title={selectedFilter ? `Select ${selectedFilter}` : 'Please select a Filter below or Search above'} bordered={false}>
-            {status === "loading" || searchStatus === "loading" ? (
+          <Card title={selectedFilter ? `Grouped by ${selectedFilter}` : 'All Leads'} bordered={false}>
+            {status === "loading" ? (
               <Spin size="large" />
-            ) : error || searchError ? (
-              <Alert message={error || searchError} type="error" />
+            ) : error ? (
+              <Alert message={error} type="error" />
             ) : (
               <div>
                 {selectedItem ? (
@@ -255,8 +264,10 @@ const ViewLeads = () => {
                     </Button>
                     {renderLeadDetails()}
                   </>
-                ) : (
+                ) : selectedFilter ? (
                   renderFilterCards()
+                ) : (
+                  renderDefaultView()
                 )}
               </div>
             )}

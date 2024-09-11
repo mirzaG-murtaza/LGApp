@@ -1,7 +1,10 @@
 package com.example.demo.controller;
 
 import com.example.demo.entity.Leads;
+import com.example.demo.models.FormulaObject;
 import com.example.demo.repository.LeadsRepository;
+import com.example.demo.utils.CommonUtils;
+import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
@@ -24,6 +27,10 @@ public class LeadsController {
     private LeadsRepository leadsRepository;
 
     @Autowired
+    private CommonUtils commonUtils;
+
+
+    @Autowired
     private RestTemplate restTemplate;
 
     @Value("${validation.uri}")
@@ -31,8 +38,8 @@ public class LeadsController {
 
     private static final Logger logger = LoggerFactory.getLogger(LeadsController.class);
 
-    private Map<String, Object> validateToken(String token) { 
-        String validationUrl = "http://"+validationUri+":8081/auth/validateToken";
+    private Map<String, Object> validateToken(String token) {
+        String validationUrl = "http://" + validationUri + ":8081/auth/validateToken";
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", token);
@@ -72,7 +79,6 @@ public class LeadsController {
         logger.warn("Token validation failed, returning null");
         return null;
     }
-
 
 
     private boolean hasPermission(Map<String, Object> userDetails, String permission) {
@@ -122,6 +128,37 @@ public class LeadsController {
         logger.info("Leads created with ID: {}", savedLeads.getId());
         return ResponseEntity.status(HttpStatus.CREATED).body(savedLeads);
     }
+
+
+    @PostMapping("/filter")
+    public ResponseEntity<List<Document>> filter(
+            @RequestBody String filterString,
+            @RequestHeader("Authorization") String token
+    ) {
+//        TODO: comment the below condition to bypass the validation during the development
+        Map<String, Object> userDetails = validateToken(token);
+        if (userDetails == null || !hasPermission(userDetails, "READ:LEAD")) {
+            logger.warn("Unauthorized access attempt to create leads with token: {}", token);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+        }
+        FormulaObject obj = new FormulaObject();
+
+        obj.setExpr(filterString);
+//        keeping this just for reference
+//        obj.setExpr("Contain ('$bdName', 'Olivers Cooper') and ( '$status' = 'CLOSED' or '$status' = 'IN_PROGRESS')");
+        try {
+            List<Document> pipeline = commonUtils.crunchReport(obj);
+            List<Document> results = leadsRepository.aggregate(pipeline);
+
+            return ResponseEntity.status(HttpStatus.ACCEPTED).body(results);
+
+        } catch (Exception e) {
+            logger.error("No Record Found for this request", e);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(null);
+        }
+    }
+
 
     @PutMapping("/update/{leadsId}")
     public ResponseEntity<Leads> updateLeads(
