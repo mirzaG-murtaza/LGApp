@@ -412,12 +412,10 @@ public class CommonUtils {
 //        }
 //        else if(!frqAggregatePipeline.isEmpty()){
 //            frqAggregatePipeline.forEach(x->aggregatePipeline.add(x));
-        String skipProjectionExpression = "{'$project': { '_id':0, 'field': '$_id', 'frequency': '$result'}}";
-        aggregatePipeline.add(Document.parse(skipProjectionExpression));
-        aggregatePipeline.add(Document.parse(" { '$sort' : { 'frequency':-1} }"));
+//        String skipProjectionExpression = "{'$project': { '_id':0, 'field': '$_id', 'frequency': '$result'}}";
+//        aggregatePipeline.add(Document.parse(skipProjectionExpression));
+//        aggregatePipeline.add(Document.parse(" { '$sort' : { 'frequency':-1} }"));
 //        }
-
-        aggregatePipeline.forEach(x->System.out.println(","+x.toJson()));
 
         return aggregatePipeline;
 
