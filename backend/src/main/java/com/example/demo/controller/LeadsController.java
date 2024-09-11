@@ -1,5 +1,6 @@
 package com.example.demo.controller;
 
+import com.example.demo.entity.FilterString;
 import com.example.demo.entity.Leads;
 import com.example.demo.models.FormulaObject;
 import com.example.demo.repository.LeadsRepository;
@@ -132,22 +133,25 @@ public class LeadsController {
 
     @PostMapping("/filter")
     public ResponseEntity<List<Document>> filter(
-            @RequestBody String filterString,
+            @RequestBody FilterString filterString,
             @RequestHeader("Authorization") String token
     ) {
 //        TODO: comment the below condition to bypass the validation during the development
-        Map<String, Object> userDetails = validateToken(token);
-        if (userDetails == null || !hasPermission(userDetails, "READ:LEAD")) {
-            logger.warn("Unauthorized access attempt to create leads with token: {}", token);
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
-        }
+//        Map<String, Object> userDetails = validateToken(token);
+//        if (userDetails == null || !hasPermission(userDetails, "READ:LEAD")) {
+//            logger.warn("Unauthorized access attempt to create leads with token: {}", token);
+//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+//        }
         FormulaObject obj = new FormulaObject();
+        String finalString = filterString.getFilterString();
 
-        obj.setExpr(filterString);
+        obj.setExpr(finalString);
+        System.out.println(filterString);
 //        keeping this just for reference
 //        obj.setExpr("Contain ('$bdName', 'Olivers Cooper') and ( '$status' = 'CLOSED' or '$status' = 'IN_PROGRESS')");
         try {
             List<Document> pipeline = commonUtils.crunchReport(obj);
+            pipeline.forEach(x-> System.out.println(x.toJson()));
             List<Document> results = leadsRepository.aggregate(pipeline);
 
             return ResponseEntity.status(HttpStatus.ACCEPTED).body(results);
