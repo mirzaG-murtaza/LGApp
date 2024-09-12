@@ -137,11 +137,11 @@ public class LeadsController {
             @RequestHeader("Authorization") String token
     ) {
 //        TODO: comment the below condition to bypass the validation during the development
-//        Map<String, Object> userDetails = validateToken(token);
-//        if (userDetails == null || !hasPermission(userDetails, "READ:LEAD")) {
-//            logger.warn("Unauthorized access attempt to create leads with token: {}", token);
-//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
-//        }
+        Map<String, Object> userDetails = validateToken(token);
+        if (userDetails == null || !hasPermission(userDetails, "READ:LEAD")) {
+            logger.warn("Unauthorized access attempt to create leads with token: {}", token);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+        }
         FormulaObject obj = new FormulaObject();
         String finalString = filterString.getFilterString();
 
