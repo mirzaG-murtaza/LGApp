@@ -121,7 +121,7 @@ const ViewLeads = () => {
   const handleCardClick = (id, value) => {
     let leadsForItem;
     if (filteredLeads.length !== 0) {
-      leadsForItem = filteredLeads.filter((lead) => lead._id.timestamp === id);
+      leadsForItem = filteredLeads.filter((lead) => lead.id === id);
     } else {
       if (selectedFilter) {
         leadsForItem = allLeads.filter(
@@ -136,7 +136,7 @@ const ViewLeads = () => {
 
   const handleEditLead = (lead) => {
     dispatch(setData(lead))
-    navigate("/editLead")
+    navigate("/editLeads")
   }
 
   const handleBackClick = () => {
@@ -158,7 +158,7 @@ const ViewLeads = () => {
         <Card
           key={lead.id}
           style={{ marginBottom: 16, cursor: "pointer" }}
-          onClick={() => handleCardClick(lead._id.timestamp)}
+          onClick={() => handleCardClick(lead.id)}
         >
           <div>
             <strong>Company Name:</strong> {lead.companyName}

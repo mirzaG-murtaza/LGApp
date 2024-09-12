@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { BrowserRouter as Router, Route, Routes, Link, Navigate } from "react-router-dom";
-import { AppstoreOutlined, FormOutlined, LogoutOutlined, SearchOutlined } from "@ant-design/icons";
+import { AppstoreOutlined, FormOutlined, LogoutOutlined } from "@ant-design/icons";
 import { Menu } from "antd";
 import { useSelector, useDispatch } from "react-redux";
 import AddLeads from "./Components/Leads/AddLeads";
