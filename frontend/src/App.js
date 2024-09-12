@@ -39,6 +39,7 @@ const App = () => {
 
   return (
     <Router>
+      {locToken && token && (
         <Menu
           onClick={onClick}
           selectedKeys={[current]}
@@ -55,7 +56,7 @@ const App = () => {
             Logout
           </Menu.Item>
         </Menu>
-      
+    )}
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/" element={<ProtectedRoute><AddLeads /></ProtectedRoute>} />
