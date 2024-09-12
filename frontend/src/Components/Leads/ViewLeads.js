@@ -9,6 +9,9 @@ import {
   refreshFilter,
   searchLeads,
 } from "../../features/data/Leads/searchLeadsSlice";
+import { searchLeads } from "../../features/data/Leads/searchLeadsSlice";
+import { useNavigate } from "react-router-dom";
+import { setData } from "../../features/data/Leads/getEditLeadSlice";
 
 const callScheduleStyle = {
   boxShadow: "0 4px 8px rgba(0, 123, 255, 0.6)",
@@ -28,6 +31,7 @@ const ViewLeads = () => {
     error,
   } = useSelector((state) => state.viewLeads);
 
+  const navigate = useNavigate();
   const [selectedFilter, setSelectedFilter] = useState(null);
   const [selectedItem, setSelectedItem] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -130,6 +134,11 @@ const ViewLeads = () => {
     }
     setSelectedItem({ value: id, leads: leadsForItem });
   };
+
+  const handleEditLead = (lead) => {
+    dispatch(setData(lead))
+    navigate("/editLead")
+  }
 
   const handleBackClick = () => {
     setSelectedItem(null);
@@ -242,36 +251,46 @@ const ViewLeads = () => {
 
     return selectedItem.leads.map((lead) => (
       <Card key={lead.id} style={{ marginBottom: 16 }}>
-        <div style={{ marginBottom: 8 }}>
-          <strong>First Contact Date:</strong>{" "}
-          {dayjs(lead.firstContactDate).format("YYYY-MM-DD")}
-        </div>
-        <div style={{ marginBottom: 8 }}>
-          <strong>Company Name:</strong> {lead.companyName}
-        </div>
-        <div style={{ marginBottom: 8 }}>
-          <strong>Inviter Name:</strong> {lead.inviterName}
-        </div>
-        <div style={{ marginBottom: 8 }}>
-          <strong>Tech Stack Name:</strong> {lead.techStackName}
-        </div>
-        <div style={{ marginBottom: 8 }}>
-          <strong>BD Name:</strong> {lead.bdName}
-        </div>
-        <div style={{ marginBottom: 8 }}>
-          <strong>Dev Name:</strong> {lead.devName}
-        </div>
-        <div style={{ marginBottom: 8 }}>
-          <strong>Profile Name:</strong> {lead.profileName}
-        </div>
-        <div style={{ marginBottom: 8 }}>
-          <strong>Coordinator Name:</strong> {lead.coordinatorName}
-        </div>
-        <div style={{ marginBottom: 8 }}>
-          <strong>Status:</strong> {lead.status}
-        </div>
-        <div style={{ marginBottom: 8 }}>
-          <strong>Description:</strong> {lead.description}
+        <div style={{ justifyContent: "space-between", display: "flex" }}>
+          <div>
+            <div style={{ marginBottom: 8 }}>
+              <strong>First Contact Date:</strong>{" "}
+              {dayjs(lead.firstContactDate).format("YYYY-MM-DD")}
+            </div>
+            <div style={{ marginBottom: 8 }}>
+              <strong>Company Name:</strong> {lead.companyName}
+            </div>
+            <div style={{ marginBottom: 8 }}>
+              <strong>Inviter Name:</strong> {lead.inviterName}
+            </div>
+            <div style={{ marginBottom: 8 }}>
+              <strong>Tech Stack Name:</strong> {lead.techStackName}
+            </div>
+            <div style={{ marginBottom: 8 }}>
+              <strong>BD Name:</strong> {lead.bdName}
+            </div>
+            <div style={{ marginBottom: 8 }}>
+              <strong>Dev Name:</strong> {lead.devName}
+            </div>
+            <div style={{ marginBottom: 8 }}>
+              <strong>Profile Name:</strong> {lead.profileName}
+            </div>
+            <div style={{ marginBottom: 8 }}>
+              <strong>Coordinator Name:</strong> {lead.coordinatorName}
+            </div>
+            <div style={{ marginBottom: 8 }}>
+              <strong>Status:</strong> {lead.status}
+            </div>
+            <div style={{ marginBottom: 8 }}>
+              <strong>Description:</strong> {lead.description}
+            </div>
+          </div>
+          <div>
+            <Button onClick={()=>handleEditLead(lead)}
+              style={{ marginBottom: 16 }} type="primary">
+              Edit Lead
+            </Button>
+          </div>
         </div>
         {lead.callSchedules && (
           <div>

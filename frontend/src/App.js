@@ -9,6 +9,7 @@ import Login from "./Components/Auth/Login";
 import ProtectedRoute from "./Components/ProtectedRoute";
 import { logout } from "./features/auth/authSlice";
 import ViewLeads from "./Components/Leads/ViewLeads";
+import EditLeads from "./Components/Leads/EditLead";
 
 const App = () => {
   const [current, setCurrent] = useState("home");
@@ -38,7 +39,7 @@ const App = () => {
 
   return (
     <Router>
-      {locToken && token &&(
+      {locToken && token && (
         <Menu
           onClick={onClick}
           selectedKeys={[current]}
@@ -47,9 +48,7 @@ const App = () => {
           <Menu.Item key="home" icon={<FormOutlined />}>
             <Link to="/">Create Leads</Link>
           </Menu.Item>
-          <Menu.Item key="getLeads" icon={<SearchOutlined />}>
-            <Link to="/getLeads">Search Leads</Link>
-          </Menu.Item>
+          
           <Menu.Item key="allLeads" icon={<AppstoreOutlined />}>
           <Link to="/viewLeads">View Leads</Link>
           </Menu.Item>
@@ -57,12 +56,13 @@ const App = () => {
             Logout
           </Menu.Item>
         </Menu>
-      )}
+    )}
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/" element={<ProtectedRoute><AddLeads /></ProtectedRoute>} />
         <Route path="/viewLeads" element={<ProtectedRoute><ViewLeads /></ProtectedRoute>} />
         <Route path="/getLeads" element={<ProtectedRoute><GetLeads /></ProtectedRoute>} />
+        <Route path="/getLeads" element={<ProtectedRoute><EditLeads /></ProtectedRoute>} />
         <Route path="*" element={token ? <Navigate to="/" /> : <Navigate to="/login" />} />
       </Routes>
     </Router>
