@@ -162,7 +162,7 @@ public class LeadsController {
             List<Document> results = leadsRepository.aggregate(pipeline).stream().map(x->{
                         ObjectId id = x.getObjectId("_id");
                         Document tempDoc = new Document(x);
-                        tempDoc.put("_id" , id.toString());
+                        tempDoc.put("id" , id.toString());
                         return tempDoc;
                     })
                     .toList();
