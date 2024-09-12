@@ -1,21 +1,27 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
+import api from '../../../utils/api';
 
 export const searchLeads = createAsyncThunk(
   'searchLeads/searchLeads',
-  async (query, { rejectWithValue }) => {
+  async (filterString, { rejectWithValue }) => { // We now send filterString directly
     const token = localStorage.getItem('token');
     if (!token) {
       return rejectWithValue('No authentication token found');
     }
 
     try {
-      const response = await axios.get(`/api/leads/search`, {
-        params: { query },
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      // Sending filterString in the POST request payload
+      const response = await api.post(
+        '/leads/filter',
+        { filterString }, // Directly sending filterString in the payload
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data || 'Failed to fetch leads');
