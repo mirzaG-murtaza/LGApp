@@ -6,8 +6,12 @@ import com.example.demo.models.FormulaObject;
 import com.example.demo.repository.LeadsRepository;
 import com.example.demo.utils.CommonUtils;
 import org.bson.Document;
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.slf4j.Logger;
@@ -16,9 +20,12 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
+import javax.print.Doc;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.Optional;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/leads")
@@ -30,6 +37,8 @@ public class LeadsController {
     @Autowired
     private CommonUtils commonUtils;
 
+    @Autowired
+    private MongoTemplate mongoTemplate;
 
     @Autowired
     private RestTemplate restTemplate;
@@ -147,13 +156,16 @@ public class LeadsController {
 
         obj.setExpr(finalString);
         System.out.println(filterString);
-//        keeping this just for reference
-//        obj.setExpr("Contain ('$bdName', 'Olivers Cooper') and ( '$status' = 'CLOSED' or '$status' = 'IN_PROGRESS')");
         try {
             List<Document> pipeline = commonUtils.crunchReport(obj);
             pipeline.forEach(x-> System.out.println(x.toJson()));
-            List<Document> results = leadsRepository.aggregate(pipeline);
-
+            List<Document> results = leadsRepository.aggregate(pipeline).stream().map(x->{
+                        ObjectId id = x.getObjectId("_id");
+                        Document tempDoc = new Document(x);
+                        tempDoc.put("_id" , id.toString());
+                        return tempDoc;
+                    })
+                    .toList();
             return ResponseEntity.status(HttpStatus.ACCEPTED).body(results);
 
         } catch (Exception e) {
