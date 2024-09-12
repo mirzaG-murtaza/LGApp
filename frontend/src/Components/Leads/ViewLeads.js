@@ -9,7 +9,6 @@ import {
   refreshFilter,
   searchLeads,
 } from "../../features/data/Leads/searchLeadsSlice";
-import { searchLeads } from "../../features/data/Leads/searchLeadsSlice";
 import { useNavigate } from "react-router-dom";
 import { setData } from "../../features/data/Leads/getEditLeadSlice";
 

@@ -62,7 +62,7 @@ const App = () => {
         <Route path="/" element={<ProtectedRoute><AddLeads /></ProtectedRoute>} />
         <Route path="/viewLeads" element={<ProtectedRoute><ViewLeads /></ProtectedRoute>} />
         <Route path="/getLeads" element={<ProtectedRoute><GetLeads /></ProtectedRoute>} />
-        <Route path="/getLeads" element={<ProtectedRoute><EditLeads /></ProtectedRoute>} />
+        <Route path="/editLeads" element={<ProtectedRoute><EditLeads /></ProtectedRoute>} />
         <Route path="*" element={token ? <Navigate to="/" /> : <Navigate to="/login" />} />
       </Routes>
     </Router>
