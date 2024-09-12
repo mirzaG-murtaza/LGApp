@@ -1,5 +1,4 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
 import api from '../../../utils/api';
 
 export const searchLeads = createAsyncThunk(
@@ -36,7 +35,13 @@ const searchLeadsSlice = createSlice({
     status: 'idle',
     error: null,
   },
-  reducers: {},
+  reducers:{
+    refreshFilter: (state) => {
+      state.data = [];
+      state.status = 'idle';
+      state.error = null;
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(searchLeads.pending, (state) => {
@@ -53,4 +58,5 @@ const searchLeadsSlice = createSlice({
   },
 });
 
+export const { refreshFilter } = searchLeadsSlice.actions;
 export default searchLeadsSlice.reducer;

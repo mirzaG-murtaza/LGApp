@@ -5,6 +5,10 @@ import { Card, Spin, Alert, Row, Col, Button, Modal, Select } from "antd";
 import { FilterOutlined } from "@ant-design/icons"; // Import the filter icon
 import { viewLeads } from "../../features/data/Leads/viewLeadsSlice";
 import { Option } from "antd/es/mentions";
+import {
+  refreshFilter,
+  searchLeads,
+} from "../../features/data/Leads/searchLeadsSlice";
 import { searchLeads } from "../../features/data/Leads/searchLeadsSlice";
 import { useNavigate } from "react-router-dom";
 import { setData } from "../../features/data/Leads/getEditLeadSlice";
@@ -30,7 +34,7 @@ const ViewLeads = () => {
   const navigate = useNavigate();
   const [selectedFilter, setSelectedFilter] = useState(null);
   const [selectedItem, setSelectedItem] = useState(null);
-  const [isModalVisible, setIsModalVisible] = useState(false); // Modal visibility state
+  const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedFilters, setSelectedFilters] = useState({
     devName: [],
     bdName: [],
@@ -38,6 +42,11 @@ const ViewLeads = () => {
     profileName: [],
     techStackName: [],
   });
+  const {
+    data: filteredLeads,
+    status: searchLeadsStatus,
+    error: searchLeadsError,
+  } = useSelector((state) => state.searchLeads);
 
   useEffect(() => {
     dispatch(viewLeads());
@@ -112,10 +121,16 @@ const ViewLeads = () => {
 
   const handleCardClick = (id, value) => {
     let leadsForItem;
-    if (selectedFilter) {
-      leadsForItem = allLeads.filter((lead) => lead[selectedFilter] === value);
+    if (filteredLeads.length !== 0) {
+      leadsForItem = filteredLeads.filter((lead) => lead._id.timestamp === id);
     } else {
-      leadsForItem = allLeads.filter((lead) => lead.id === id);
+      if (selectedFilter) {
+        leadsForItem = allLeads.filter(
+          (lead) => lead[selectedFilter] === value
+        );
+      } else {
+        leadsForItem = allLeads.filter((lead) => lead.id === id);
+      }
     }
     setSelectedItem({ value: id, leads: leadsForItem });
   };
@@ -139,35 +154,67 @@ const ViewLeads = () => {
   };
 
   const renderDefaultView = () => {
-    return allLeads.map((lead) => (
-      <Card
-        key={lead.id}
-        style={{ marginBottom: 16, cursor: "pointer" }}
-        onClick={() => handleCardClick(lead.id)} // Card is clickable to show full details
-      >
-        <div>
-          <strong>Company Name:</strong> {lead.companyName}
-        </div>
-        <div>
-          <strong>Tech Stack:</strong> {lead.techStackName}
-        </div>
-        <div>
-          <strong>BD Name:</strong> {lead.bdName}
-        </div>
-        <div>
-          <strong>Developer:</strong> {lead.devName}
-        </div>
-        <div>
-          <strong>Profile:</strong> {lead.profileName}
-        </div>
-        <div>
-          <strong>Coordinator:</strong> {lead.coordinatorName}
-        </div>
-        <div>
-          <strong>Status:</strong> {lead.status}
-        </div>
-      </Card>
-    ));
+    if (filteredLeads.length !== 0) {
+      return filteredLeads.map((lead) => (
+        <Card
+          key={lead.id}
+          style={{ marginBottom: 16, cursor: "pointer" }}
+          onClick={() => handleCardClick(lead._id.timestamp)}
+        >
+          <div>
+            <strong>Company Name:</strong> {lead.companyName}
+          </div>
+          <div>
+            <strong>Tech Stack:</strong> {lead.techStackName}
+          </div>
+          <div>
+            <strong>BD Name:</strong> {lead.bdName}
+          </div>
+          <div>
+            <strong>Developer:</strong> {lead.devName}
+          </div>
+          <div>
+            <strong>Profile:</strong> {lead.profileName}
+          </div>
+          <div>
+            <strong>Coordinator:</strong> {lead.coordinatorName}
+          </div>
+          <div>
+            <strong>Status:</strong> {lead.status}
+          </div>
+        </Card>
+      ));
+    } else {
+      return allLeads.map((lead) => (
+        <Card
+          key={lead.id}
+          style={{ marginBottom: 16, cursor: "pointer" }}
+          onClick={() => handleCardClick(lead.id)} // Card is clickable to show full details
+        >
+          <div>
+            <strong>Company Name:</strong> {lead.companyName}
+          </div>
+          <div>
+            <strong>Tech Stack:</strong> {lead.techStackName}
+          </div>
+          <div>
+            <strong>BD Name:</strong> {lead.bdName}
+          </div>
+          <div>
+            <strong>Developer:</strong> {lead.devName}
+          </div>
+          <div>
+            <strong>Profile:</strong> {lead.profileName}
+          </div>
+          <div>
+            <strong>Coordinator:</strong> {lead.coordinatorName}
+          </div>
+          <div>
+            <strong>Status:</strong> {lead.status}
+          </div>
+        </Card>
+      ));
+    }
   };
 
   const renderFilterCards = () => {
@@ -360,10 +407,17 @@ const ViewLeads = () => {
         onCancel={handleModalCancel}
         onOk={() => {
           const filterString = generateFilterString(selectedFilters);
-          const query = `${filterString}`
-          dispatch(searchLeads(query))
-          console.log(query);
-          setIsModalVisible(false);
+          const query = `${filterString}`;
+          if (filterString === "") {
+            dispatch(refreshFilter());
+            setSelectedFilter(null);
+            setIsModalVisible(false);
+          } else {
+            dispatch(searchLeads(query));
+            console.log(query);
+            setSelectedFilter(null);
+            setIsModalVisible(false);
+          }
         }}
       >
         <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
