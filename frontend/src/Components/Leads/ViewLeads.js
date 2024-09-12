@@ -49,9 +49,11 @@ const ViewLeads = () => {
 
   useEffect(() => {
     dispatch(viewLeads());
+    dispatch(refreshFilter());
   }, [dispatch]);
 
   const handleButtonClick = (filter) => {
+    dispatch(refreshFilter());
     setSelectedFilter(filter);
     setSelectedItem(null);
   };
@@ -272,7 +274,7 @@ const ViewLeads = () => {
               <strong>Dev Name:</strong> {lead.devName}
             </div>
             <div style={{ marginBottom: 8 }}>
-              <strong>Profile Name:</strong> {lead.profileName}
+              <strong>Profile Email:</strong> {lead.profileName}
             </div>
             <div style={{ marginBottom: 8 }}>
               <strong>Coordinator Name:</strong> {lead.coordinatorName}
@@ -393,7 +395,7 @@ const ViewLeads = () => {
               onClick={() => handleButtonClick("profileName")}
               style={{ marginRight: 8 }}
             >
-              Profile Name
+              Profile Email
             </Button>
           </div>
         </Col>
@@ -561,9 +563,9 @@ const ViewLeads = () => {
             </Select>
           </div>
 
-          {/* Profile Name */}
+          {/* Profile Email */}
           <div>
-            <h4>Profile Name</h4>
+            <h4>Profile Email</h4>
             <Select
               mode="multiple"
               showSearch

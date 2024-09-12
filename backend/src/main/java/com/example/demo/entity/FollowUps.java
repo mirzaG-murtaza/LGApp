@@ -4,16 +4,8 @@ import java.time.LocalDate;
 
 public class FollowUps {
 
-    public enum Status {
-        NEW,
-        IN_PROGRESS,
-        COMPLETED,
-        CLOSED
-    }
-
     private LocalDate followupDate;
     private String callNotes;
-    private Status status;
 
 
     public LocalDate getFollowupDate() {
@@ -32,11 +24,4 @@ public class FollowUps {
         this.callNotes = callNotes;
     }
 
-    public Status getStatus() {
-        return status;
-    }
-
-    public void setStatus(Status status) {
-        this.status = status;
-    }
 }

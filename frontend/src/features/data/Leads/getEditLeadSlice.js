@@ -2,7 +2,7 @@ import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
   data: null, 
-  editable: false
+  editable: true
 };
 
 const editLeadSlice = createSlice({

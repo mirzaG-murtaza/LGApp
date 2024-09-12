@@ -218,7 +218,7 @@ const GetLeads = () => {
                   <Form.Item label="Dev Name" name="devName">
                     <Input readOnly={!editable} />
                   </Form.Item>
-                  <Form.Item label="Profile Name" name="profileName">
+                  <Form.Item label="Profile Email" name="profileName">
                     <Input readOnly={!editable} />
                   </Form.Item>
                   <Form.Item label="Coordinator Name" name="coordinatorName">

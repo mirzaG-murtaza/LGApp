@@ -5,12 +5,44 @@ import java.util.List;
 
 public class CallSchedules {
 
+    public CallStatus getCallStatus() {
+        return callStatus;
+    }
+
+    public void setCallStatus(CallStatus callStatus) {
+        this.callStatus = callStatus;
+    }
+
+    public String getCoordinatorEmail() {
+        return coordinatorEmail;
+    }
+
+    public void setCoordinatorEmail(String coordinatorEmail) {
+        this.coordinatorEmail = coordinatorEmail;
+    }
+
+    public String getLeadCompanyEmail() {
+        return leadCompanyEmail;
+    }
+
+    public void setLeadCompanyEmail(String leadCompanyEmail) {
+        this.leadCompanyEmail = leadCompanyEmail;
+    }
+
+    public enum CallStatus {
+        MISSED,
+        TAKEN
+    }
+
     private LocalDateTime callDate;
     private String notes;
     private String leadCompanyName;
+    private String leadCompanyEmail;
     private String coordinatorName;
+    private String coordinatorEmail;
     private String devName;
     private String callCategory;
+    private CallStatus callStatus;
     private List<FollowUps> followUps;
 
 

@@ -37,7 +37,6 @@ const followUpTextColor = {
 };
 
 const EditLeads = () => {
-  const [searchId, setSearchId] = useState("");
   const dispatch = useDispatch();
   const { data: leads, editable } = useSelector((state) => {
     console.log(state);
@@ -182,7 +181,7 @@ const EditLeads = () => {
                   <Form.Item label="Dev Name" name="devName">
                     <Input readOnly={!editable} />
                   </Form.Item>
-                  <Form.Item label="Profile Name" name="profileName">
+                  <Form.Item label="Profile Email" name="profileName">
                     <Input readOnly={!editable} />
                   </Form.Item>
                   <Form.Item label="Coordinator Name" name="coordinatorName">
@@ -226,7 +225,7 @@ const EditLeads = () => {
                             }}
                             extra={
                               editable &&
-                              (index >= leads?.callSchedules?.length ? (
+                              (index === leads?.callSchedules?.length ? (
                                 <Button
                                   type="link"
                                   onClick={() => remove(field.name)}
@@ -305,7 +304,7 @@ const EditLeads = () => {
                                           editable &&
                                           leads?.callSchedules?.[index]
                                             ?.followUps &&
-                                          followIndex >=
+                                          followIndex ===
                                             leads.callSchedules[index].followUps
                                               .length ? (
                                             <Button

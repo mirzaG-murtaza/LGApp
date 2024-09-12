@@ -129,7 +129,7 @@ const AddLeads = () => {
         <Form.Item
           name="profileName"
           rules={[{ required: true, message: "Please input!" }]}
-          label="Profile Name"
+          label="Profile Email"
         >
           <Input />
         </Form.Item>

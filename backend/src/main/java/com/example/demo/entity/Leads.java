@@ -8,6 +8,76 @@ import java.util.List;
 @Document(collection = "Leads")
 public class Leads {
 
+
+    public JobType getJobType() {
+        return jobType;
+    }
+
+    public void setJobType(JobType jobType) {
+        this.jobType = jobType;
+    }
+
+    public String getCompanyEmail() {
+        return companyEmail;
+    }
+
+    public void setCompanyEmail(String companyEmail) {
+        this.companyEmail = companyEmail;
+    }
+
+    public String getProfileEmail() {
+        return profileEmail;
+    }
+
+    public void setProfileEmail(String profileEmail) {
+        this.profileEmail = profileEmail;
+    }
+
+    public String getCoordinatorEmail() {
+        return coordinatorEmail;
+    }
+
+    public void setCoordinatorEmail(String coordinatorEmail) {
+        this.coordinatorEmail = coordinatorEmail;
+    }
+
+    public enum Status {
+        NEW,
+        IN_PROGRESS,
+        COMPLETED,
+        REJECTED,
+        ABANDONED
+    }
+
+    public enum JobType {
+        REMOTE,
+        HYBRID,
+        ONSITE
+    }
+
+    @Id
+    private String id;
+    private LocalDate firstContactDate;
+    private String companyName;
+    private String companyEmail;
+    private String inviterName;
+    private String techStackName;
+    private String bdName;
+    private String devName;
+    private String profileName;
+    private String profileEmail;
+    private String coordinatorName;
+    private String coordinatorEmail;
+    private Status status;
+    private String description;
+    private String userId;
+    private JobType jobType;
+
+
+    public String getUserId() {
+        return userId;
+    }
+
     public String getCoordinatorName() {
         return coordinatorName;
     }
@@ -23,31 +93,6 @@ public class Leads {
     public void setDescription(String description) {
         this.description = description;
     }
-
-    public enum Status {
-        NEW,
-        IN_PROGRESS,
-        COMPLETED,
-        CLOSED
-    }
-
-    @Id
-    private String id;
-    private LocalDate firstContactDate;
-    private String companyName;
-    private String inviterName;
-    private String techStackName;
-    private String bdName;
-    private String devName;
-    private String profileName;
-    private String coordinatorName;
-    private Status status;
-    private String description;
-    private String userId;
-    public String getUserId() {
-        return userId;
-    }
-
     public void setUserId(String userId) {
         this.userId = userId;
     }
