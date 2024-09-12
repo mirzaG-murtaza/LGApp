@@ -7,8 +7,6 @@ import {
   Input,
   Button,
   Card,
-  Spin,
-  Alert,
   Row,
   Col,
   Radio,
@@ -17,12 +15,8 @@ import {
   Space,
   notification,
 } from "antd";
-import {
-  fetchLeads,
-  refreshLeads,
-} from "../../features/data/Leads/getLeadsSlice";
+import { refreshLeads } from "../../features/data/Leads/getLeadsSlice";
 import { updateLead } from "../../features/data/Leads/updateLeadSlice";
-
 
 const callScheduleStyle = {
   boxShadow: "0 4px 8px rgba(0, 123, 255, 0.6)",
@@ -45,13 +39,14 @@ const followUpTextColor = {
 const EditLeads = () => {
   const [searchId, setSearchId] = useState("");
   const dispatch = useDispatch();
-  const { data: leads, editable } = useSelector((state) => {console.log(state)
-    return state.editLead
+  const { data: leads, editable } = useSelector((state) => {
+    console.log(state);
+    return state.editLead;
   });
-//   const [editable, setEditable] = useState(false);
   const [form] = Form.useForm();
 
   useEffect(() => {
+    console.log("leads", leads);
     if (leads) {
       const initialValues = {
         ...leads,
@@ -85,20 +80,34 @@ const EditLeads = () => {
   const handleSave = async () => {
     try {
       const updatedData = await form.validateFields();
-
+  
+      console.log("leads.id:", leads.id);
+      console.log("leads._id:", leads._id);
+  
+      const leadId = leads.id
+        ? leads.id
+        : leads._id && typeof leads._id === 'object'
+          ? `timestamp-${leads._id.timestamp}-date-${leads._id.date}`
+          : null;
+  
+      console.log("leadId:", leadId); // Debugging to check what leadId is
+  
+      // Ensure leadId is a valid string before proceeding
+      if (!leadId || typeof leadId !== 'string') {
+        throw new Error("Invalid lead ID");
+      }
+  
       const updatedDataWithUTC = {
         ...updatedData,
         callSchedules: updatedData.callSchedules?.map((schedule) => {
-          const callDate = schedule.callDate
-            ? new Date(schedule.callDate)
-            : null;
-
+          const callDate = schedule.callDate ? new Date(schedule.callDate) : null;
+  
           if (callDate) {
             const timezoneOffset = -callDate.getTimezoneOffset() / 60;
             callDate.setHours(callDate.getHours() + timezoneOffset);
             callDate.setUTCHours(0, 0, 0, 0);
           }
-
+  
           return {
             ...schedule,
             callDate: callDate ? callDate.toISOString() : null,
@@ -106,13 +115,13 @@ const EditLeads = () => {
               const followupDate = followUp.followupDate
                 ? new Date(followUp.followupDate)
                 : null;
-
+  
               if (followupDate) {
                 const timezoneOffset = -followupDate.getTimezoneOffset() / 60;
                 followupDate.setHours(followupDate.getHours() + timezoneOffset);
                 followupDate.setUTCHours(0, 0, 0, 0);
               }
-
+  
               return {
                 ...followUp,
                 followupDate: followupDate ? followupDate.toISOString() : null,
@@ -121,16 +130,16 @@ const EditLeads = () => {
           };
         }),
       };
-
+  
+      // Dispatch with correctly formatted ID
       await dispatch(
-        updateLead({ id: searchId, ...updatedDataWithUTC })
+        updateLead({ id: leadId, ...updatedDataWithUTC })
       ).unwrap();
-
+  
       notification.success({
         message: "Success",
         description: "Lead updated successfully!",
       });
-
     } catch (error) {
       notification.error({
         message: "Error",
@@ -140,17 +149,14 @@ const EditLeads = () => {
       console.error("Validation failed:", error);
     }
   };
+  
 
   return (
     <React.Fragment>
-      
-
       <div className="container">
-              <Link to="/viewLeads">
-                  <Button style={{ marginBottom: 16 }}>
-                      Back
-                  </Button>
-              </Link>
+        <Link to="/viewLeads">
+          <Button style={{ marginBottom: 16 }}>Back</Button>
+        </Link>
 
         {leads && (
           <Row justify="center" style={{ marginTop: 24 }}>
@@ -297,11 +303,16 @@ const EditLeads = () => {
                                         }}
                                         extra={
                                           editable &&
-                                          leads?.callSchedules?.[index]?.followUps &&
-                                          followIndex >= leads.callSchedules[index].followUps.length ? (
+                                          leads?.callSchedules?.[index]
+                                            ?.followUps &&
+                                          followIndex >=
+                                            leads.callSchedules[index].followUps
+                                              .length ? (
                                             <Button
                                               type="link"
-                                              onClick={() => removeFollowUp(subField.name)}
+                                              onClick={() =>
+                                                removeFollowUp(subField.name)
+                                              }
                                               danger
                                             >
                                               Remove Follow-up
@@ -364,7 +375,7 @@ const EditLeads = () => {
                                   )}
                                 </>
                               )}
-                            </Form.List> 
+                            </Form.List>
                           </Card>
                         ))}
                         {editable && (
