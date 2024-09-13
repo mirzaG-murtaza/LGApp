@@ -225,7 +225,7 @@ const EditLeads = () => {
                             }}
                             extra={
                               editable &&
-                              (index === leads?.callSchedules?.length ? (
+                              (index >= leads?.callSchedules?.length ? (
                                 <Button
                                   type="link"
                                   onClick={() => remove(field.name)}
@@ -304,7 +304,7 @@ const EditLeads = () => {
                                           editable &&
                                           leads?.callSchedules?.[index]
                                             ?.followUps &&
-                                          followIndex ===
+                                          followIndex >=
                                             leads.callSchedules[index].followUps
                                               .length ? (
                                             <Button

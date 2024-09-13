@@ -1,7 +1,18 @@
 import React, { useState, useEffect } from "react";
 import dayjs from "dayjs";
 import { useDispatch, useSelector } from "react-redux";
-import { Card, Spin, Alert, Row, Col, Button, Modal, Select } from "antd";
+import {
+  Card,
+  Spin,
+  Alert,
+  Row,
+  Col,
+  Button,
+  Modal,
+  Select,
+  AutoComplete,
+  Input,
+} from "antd";
 import { FilterOutlined } from "@ant-design/icons"; // Import the filter icon
 import { viewLeads } from "../../features/data/Leads/viewLeadsSlice";
 import { Option } from "antd/es/mentions";
@@ -22,6 +33,53 @@ const followUpStyle = {
   borderColor: "#28a745",
 };
 
+const operatorMap = {
+  "+": "+",
+  "-": "-",
+  "/": "/",
+  "*": "*",
+  "%": "%",
+  and: "and",
+  or: "or",
+  "=": "=",
+  "<": "<=",
+  ">": ">=",
+  "!=": "!=",
+  Days: "Days",
+  Contain: "Contain",
+  NotContain: "NotContain",
+  IsNull: "IsNull",
+  HasValue: "HasValue",
+};
+
+// Mongo field mappings
+const mongoFieldMap = {
+  "Company Name": "'$companyName'",
+  "Inviter Name": "'$inviterName'",
+  "Tech Stack": "'$techStackName'",
+  "BD Name": "'$bdName'",
+  "Dev Name": "'$devName'",
+  "Profile Name": "'$profileName'",
+  "Coordinator Name": "'$coordinatorName'",
+  Status: "'$status'",
+  Description: "'$description'",
+  "First Contact Date": "'$firstContactDate'",
+  "Call Date": "'$callSchedules.callDate'",
+  "Call Notes": "'$callSchedules.notes'",
+  "Lead Company Name": "'$callSchedules.leadCompanyName'",
+  "Call Category": "'$callSchedules.callCategory'",
+  "Followup Date": "'$callSchedules.followUps.followupDate'",
+  "Followup Notes": "'$callSchedules.followUps.callNotes'",
+  "Followup Status": "'$callSchedules.followUps.status'",
+  "User ID": "'$userId'",
+};
+
+// Combine operator and field maps for autocomplete suggestions
+const suggestions = [
+  ...Object.keys(operatorMap),
+  ...Object.keys(mongoFieldMap),
+];
+
 const ViewLeads = () => {
   const dispatch = useDispatch();
   const {
@@ -34,6 +92,7 @@ const ViewLeads = () => {
   const [selectedFilter, setSelectedFilter] = useState(null);
   const [selectedItem, setSelectedItem] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [trigger, setTrigger] = useState(false)
   const [selectedFilters, setSelectedFilters] = useState({
     devName: [],
     bdName: [],
@@ -41,11 +100,18 @@ const ViewLeads = () => {
     profileName: [],
     techStackName: [],
   });
-  const {
-    data: filteredLeads,
-    status: searchLeadsStatus,
-    error: searchLeadsError,
-  } = useSelector((state) => state.searchLeads);
+  const { data: filteredLeads } = useSelector((state) => state.searchLeads);
+  const [searchQuery, setSearchQuery] = useState(""); // Store search query
+  const [autoCompleteOptions, setAutoCompleteOptions] = useState([]);
+  const [query, setQuery] = useState("")
+
+  const handleSearchChange = (value) => {
+    setSearchQuery(value);
+    const filteredOptions = suggestions.filter((option) =>
+      option.toLowerCase().includes(value.toLowerCase())
+    );
+    setAutoCompleteOptions(filteredOptions);
+  };
 
   useEffect(() => {
     dispatch(viewLeads());
@@ -120,6 +186,13 @@ const ViewLeads = () => {
     return filterParts.length > 0 ? filterParts.join(" and ") : "";
   };
 
+  const handleModalSubmit = () => {
+    if (searchQuery.trim()) {
+      dispatch(searchLeads(searchQuery)); // Dispatch the search query when "OK" is clicked
+      setIsModalVisible(false); // Close the modal after submitting
+    }
+  };
+
   const handleCardClick = (id, value) => {
     let leadsForItem;
     if (filteredLeads.length !== 0) {
@@ -137,9 +210,9 @@ const ViewLeads = () => {
   };
 
   const handleEditLead = (lead) => {
-    dispatch(setData(lead))
-    navigate("/editLeads")
-  }
+    dispatch(setData(lead));
+    navigate("/editLeads");
+  };
 
   const handleBackClick = () => {
     setSelectedItem(null);
@@ -152,6 +225,21 @@ const ViewLeads = () => {
 
   const handleModalCancel = () => {
     setIsModalVisible(false);
+  };
+
+  const countCalls = (filterType, value) => {
+    return allLeads
+      .filter((lead) => lead[filterType] === value)
+      .reduce((acc, lead) => acc + lead.callSchedules.length, 0);
+  };
+
+  const capitalizeStatus = (status) => {
+    // Split the status by underscores or spaces, capitalize each word, and join them back together
+    return status
+      .toLowerCase()
+      .split("_")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
   };
 
   const renderDefaultView = () => {
@@ -211,7 +299,7 @@ const ViewLeads = () => {
             <strong>Coordinator:</strong> {lead.coordinatorName}
           </div>
           <div>
-            <strong>Status:</strong> {lead.status}
+            <strong>Status:</strong> {capitalizeStatus(lead.status)}
           </div>
         </Card>
       ));
@@ -226,7 +314,10 @@ const ViewLeads = () => {
     return filterValues.map((value) => {
       const leadNames = allLeads
         .filter((lead) => lead[selectedFilter] === value)
-        .map((lead) => lead.companyName);
+        .map((lead) => ({
+          companyName: lead.companyName,
+          status: lead.status,
+        })); // Get both company name and status
 
       return (
         <Card
@@ -234,14 +325,28 @@ const ViewLeads = () => {
           style={{ marginBottom: 16, cursor: "pointer" }}
           onClick={() => handleCardClick(null, value)}
         >
-          <div>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+          >
             <strong>{value}</strong>
+            <span>
+              <strong>Calls:</strong> {countCalls(selectedFilter, value)}{" "}
+            </span>
           </div>
-          <ul>
-            {leadNames.map((name, index) => (
-              <li key={index}>{name}</li>
+          <ol>
+            {leadNames.map((lead, index) => (
+              <li key={index}>
+                {lead.companyName}{" "}
+                <span style={{ color: "gray" }}>
+                  ({capitalizeStatus(lead.status)})
+                </span>{" "}
+              </li>
             ))}
-          </ul>
+          </ol>
         </Card>
       );
     });
@@ -287,8 +392,11 @@ const ViewLeads = () => {
             </div>
           </div>
           <div>
-            <Button onClick={()=>handleEditLead(lead)}
-              style={{ marginBottom: 16 }} type="primary">
+            <Button
+              onClick={() => handleEditLead(lead)}
+              style={{ marginBottom: 16 }}
+              type="primary"
+            >
               Edit Lead
             </Button>
           </div>
@@ -395,7 +503,7 @@ const ViewLeads = () => {
               onClick={() => handleButtonClick("profileName")}
               style={{ marginRight: 8 }}
             >
-              Profile Email
+              Profile Name
             </Button>
           </div>
         </Col>
@@ -407,6 +515,7 @@ const ViewLeads = () => {
         visible={isModalVisible}
         onCancel={handleModalCancel}
         onOk={() => {
+          if(trigger === false){
           const filterString = generateFilterString(selectedFilters);
           const query = `${filterString}`;
           if (filterString === "") {
@@ -418,8 +527,16 @@ const ViewLeads = () => {
             console.log(query);
             setSelectedFilter(null);
             setIsModalVisible(false);
+            handleModalSubmit();
           }
-        }}
+        }
+      else{
+        dispatch(searchLeads(query));
+        setTrigger(false);
+        setIsModalVisible(false);
+        setSearchQuery("")
+      }}
+      }
       >
         <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
           {/* Company Name */}
@@ -603,6 +720,22 @@ const ViewLeads = () => {
               <Option value="IN_PROGRESS">IN_PROGRESS</Option>
               <Option value="CLOSED">CLOSED</Option>
             </Select>
+          </div>
+          <div>
+            <h4>Query Search</h4>
+            <AutoComplete
+              style={{ width: "100%" }}
+              options={autoCompleteOptions.map((option) => ({
+                value: option,
+              }))}
+              onSearch={handleSearchChange}
+              placeholder="Enter query..."
+            >
+              <Input
+                value={searchQuery}
+                onChange={(e) => {setQuery(e.target.value); setTrigger(true)}}
+              />
+            </AutoComplete>
           </div>
         </div>
       </Modal>

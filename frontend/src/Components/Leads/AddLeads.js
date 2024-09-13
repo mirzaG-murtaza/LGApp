@@ -34,17 +34,41 @@ const followUpTextColor = {
 
 const AddLeads = () => {
   const dispatch = useDispatch();
-  const { status: addLeadsStatus, error: addLeadsError } = useSelector((state) => state.addLeads);
+  const { status: addLeadsStatus, error: addLeadsError } = useSelector(
+    (state) => state.addLeads
+  );
   const [form] = Form.useForm();
 
   const status = {
     NEW: "New",
     IN_PROGRESS: "In Progress",
     COMPLETED: "Completed",
-    CLOSED: "Closed",
+    REJECTED: "Rejected",
+    ABANDOND: "Abandond",
+  };
+
+  const jobType = {
+    REMOTE: "Remote",
+    HYBRID: "Hybrid",
+    ONSITE: "Onsite",
+  };
+
+  const callStatus = {
+    TAKEN: "Taken",
+    MISSED: "Missed"
   };
 
   const statusOptions = Object.entries(status).map(([key, value]) => ({
+    value: key,
+    label: value,
+  }));
+
+  const jobTypeOptions = Object.entries(jobType).map(([key, value]) => ({
+    value: key,
+    label: value,
+  }));
+
+  const callStatusOptions = Object.entries(callStatus).map(([key, value]) => ({
     value: key,
     label: value,
   }));
@@ -74,7 +98,7 @@ const AddLeads = () => {
         });
       });
   };
-  
+
   return (
     <div className="form-container">
       <Form
@@ -90,6 +114,26 @@ const AddLeads = () => {
           label="Company Name"
         >
           <Input />
+        </Form.Item>
+        <Form.Item
+          name="companyEmail"
+          rules={[{ required: true, message: "Please input!" }]}
+          label="Company Email"
+        >
+          <Input />
+        </Form.Item>
+        <Form.Item
+          name="jobType"
+          label="JobType"
+          rules={[{ required: true, message: "Please select the Job Type!" }]}
+        >
+          <Select placeholder="Select Job Type">
+            {jobTypeOptions.map((option) => (
+              <Select.Option key={option.value} value={option.value}>
+                {option.label}
+              </Select.Option>
+            ))}
+          </Select>
         </Form.Item>
         <Form.Item
           name="inviterName"
@@ -127,7 +171,21 @@ const AddLeads = () => {
           <Input />
         </Form.Item>
         <Form.Item
+          name="coordinatorEmail"
+          rules={[{ required: true, message: "Please input!" }]}
+          label="Coordinator Email"
+        >
+          <Input />
+        </Form.Item>
+        <Form.Item
           name="profileName"
+          rules={[{ required: true, message: "Please input!" }]}
+          label="Profile Name"
+        >
+          <Input />
+        </Form.Item>
+        <Form.Item
+          name="profileEmail"
           rules={[{ required: true, message: "Please input!" }]}
           label="Profile Email"
         >
@@ -161,7 +219,11 @@ const AddLeads = () => {
               {fields.map((field) => (
                 <Card
                   size="small"
-                  title={<span style={callScheduleTextColor}>Call Schedule {field.name + 1}</span>}
+                  title={
+                    <span style={callScheduleTextColor}>
+                      Call Schedule {field.name + 1}
+                    </span>
+                  }
                   key={field.key}
                   extra={<CloseOutlined onClick={() => remove(field.name)} />}
                   className="callScheduleStyle"
@@ -182,8 +244,22 @@ const AddLeads = () => {
                   </Form.Item>
                   <Form.Item
                     rules={[{ required: true, message: "Please input!" }]}
+                    label="Coordinator Email"
+                    name={[field.name, "coordinatorEmail"]}
+                  >
+                    <Input />
+                  </Form.Item>
+                  <Form.Item
+                    rules={[{ required: true, message: "Please input!" }]}
                     label="Lead Company Name"
                     name={[field.name, "leadCompanyName"]}
+                  >
+                    <Input />
+                  </Form.Item>
+                  <Form.Item
+                    rules={[{ required: true, message: "Please input!" }]}
+                    label="Lead Company Email"
+                    name={[field.name, "leadCompanyEmail"]}
                   >
                     <Input />
                   </Form.Item>
@@ -195,22 +271,34 @@ const AddLeads = () => {
                   >
                     <Input />
                   </Form.Item>
-                  <Form.Item 
-                  name={[field.name, "callCategory"]} 
-                  rules={[{ required: true, message: "Please select!" }]}
-                  label="Call Category"
+                  <Form.Item
+                    name={[field.name, "callCategory"]}
+                    rules={[{ required: true, message: "Please select!" }]}
+                    label="Call Category"
                   >
                     <Radio.Group>
                       <Radio value="hr"> HR Round </Radio>
                       <Radio value="technical"> Technical Round </Radio>
                     </Radio.Group>
                   </Form.Item>
-                  <Form.Item 
-                  name={[field.name, "callDate"]}
-                  label="Call Date"
-                  rules={[{ required: true, message: "Please select!" }]}
+                  <Form.Item
+                    name={[field.name, "callDate"]}
+                    label="Call Date"
+                    rules={[{ required: true, message: "Please select!" }]}
                   >
                     <DatePicker />
+                  </Form.Item>
+                  <Form.Item
+                    name={[field.name, "callStatus"]}
+                    label="Call Status"
+                  >
+                    <Select placeholder="Select a Status">
+                      {callStatusOptions.map((option) => (
+                        <Select.Option key={option.value} value={option.value}>
+                          {option.label}
+                        </Select.Option>
+                      ))}
+                    </Select>
                   </Form.Item>
 
                   <Form.List name={[field.name, "followUps"]}>
@@ -223,7 +311,11 @@ const AddLeads = () => {
                           <Space key={subField.key}>
                             <Card
                               size="small"
-                              title={<span style={followUpTextColor}>Follow Up {subField.name + 1}</span>}
+                              title={
+                                <span style={followUpTextColor}>
+                                  Follow Up {subField.name + 1}
+                                </span>
+                              }
                               style={followUpStyle}
                               extra={
                                 <Button
@@ -236,49 +328,25 @@ const AddLeads = () => {
                               }
                             >
                               <Form.Item
-                                name={[
-                                  subField.name,
-                                  "followupDate",
-                                ]}
+                                name={[subField.name, "followupDate"]}
                                 label="Follow Up Date"
                               >
                                 <DatePicker />
                               </Form.Item>
                               <Form.Item
-                                name={[
-                                  subField.name,
-                                  "callNotes",
-                                ]}
+                                name={[subField.name, "callNotes"]}
                                 label="Follow Up Notes"
                               >
                                 <Input placeholder="Follow Up Notes" />
                               </Form.Item>
-                              <Form.Item
-                                name={[
-                                  subField.name,
-                                  "status",
-                                ]}
-                                label="Follow Up Status"
-                              >
-                                <Select placeholder="Select a status">
-                                  {statusOptions.map((option) => (
-                                    <Select.Option
-                                      key={option.value}
-                                      value={option.value}
-                                    >
-                                      {option.label}
-                                    </Select.Option>
-                                  ))}
-                                </Select>
-                              </Form.Item>
                             </Card>
-                            {/* <Button
+                            <Button
                               type="primary"
                               danger
                               onClick={() => removeFollowUp(subField.name)}
                             >
                               Remove Follow Up
-                            </Button> */}
+                            </Button>
                           </Space>
                         ))}
                         <Button
@@ -293,11 +361,7 @@ const AddLeads = () => {
                   </Form.List>
                 </Card>
               ))}
-              <Button
-                onClick={() => add()}
-                block
-                className="addButtons"
-              >
+              <Button onClick={() => add()} block className="addButtons">
                 Add Call Schedule
               </Button>
             </div>
