@@ -10,8 +10,7 @@ import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.aggregation.Aggregation;
-import org.springframework.data.mongodb.core.aggregation.AggregationResults;
+import org.springframework.beans.BeanUtils;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.slf4j.Logger;
@@ -182,30 +181,21 @@ public class LeadsController {
             @RequestBody Leads leadsDetails,
             @RequestHeader("Authorization") String token) {
 
-        logger.info("HTTP PUT request received to update leads with ID: {}", leadsId);
-        logger.info("Authorization header: {}", token);
-        logger.info("Request Body: {}", leadsDetails);
-
+        // Validate the token and permissions
         Map<String, Object> userDetails = validateToken(token);
         if (userDetails == null || !hasPermission(userDetails, "WRITE:LEAD")) {
             logger.warn("Unauthorized access attempt to update leads with token: {}", token);
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
         }
 
+        // Fetch the existing lead
         Optional<Leads> leadsOptional = leadsRepository.findById(leadsId);
 
         if (leadsOptional.isPresent()) {
             Leads existingLeads = leadsOptional.get();
-            existingLeads.setFirstContactDate(leadsDetails.getFirstContactDate());
-            existingLeads.setCompanyName(leadsDetails.getCompanyName());
-            existingLeads.setInviterName(leadsDetails.getInviterName());
-            existingLeads.setTechStackName(leadsDetails.getTechStackName());
-            existingLeads.setBdName(leadsDetails.getBdName());
-            existingLeads.setCoordinatorName(leadsDetails.getCoordinatorName());
-            existingLeads.setProfileName(leadsDetails.getProfileName());
-            existingLeads.setStatus(leadsDetails.getStatus());
-            existingLeads.setDescription(leadsDetails.getDescription());
-            existingLeads.setCallSchedules(leadsDetails.getCallSchedules());
+
+            BeanUtils.copyProperties(leadsDetails, existingLeads, "id", "createdAt", "otherNonUpdatableFields");
+
             Leads updatedLeads = leadsRepository.save(existingLeads);
             logger.info("Leads updated: {}", updatedLeads);
             return ResponseEntity.ok(updatedLeads);
@@ -214,6 +204,9 @@ public class LeadsController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
     }
+
+
+
     @GetMapping("/allLeads")
     public ResponseEntity<List<Leads>> getAllLeads(@RequestHeader("Authorization") String token) {
         

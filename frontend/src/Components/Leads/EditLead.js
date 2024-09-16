@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import dayjs from "dayjs";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
@@ -18,6 +18,9 @@ import {
 import { refreshLeads } from "../../features/data/Leads/getLeadsSlice";
 import { updateLead } from "../../features/data/Leads/updateLeadSlice";
 
+const { TextArea } = Input;
+
+// Styles
 const callScheduleStyle = {
   boxShadow: "0 4px 8px rgba(0, 123, 255, 0.6)",
   borderColor: "#007bff",
@@ -44,6 +47,35 @@ const EditLeads = () => {
   });
   const [form] = Form.useForm();
 
+  // Define options
+  const statusOptions = Object.entries({
+    NEW: "New",
+    IN_PROGRESS: "In Progress",
+    COMPLETED: "Completed",
+    REJECTED: "Rejected",
+    ABANDONED: "Abandoned",
+  }).map(([key, value]) => ({
+    value: key,
+    label: value,
+  }));
+
+  const jobTypeOptions = Object.entries({
+    REMOTE: "Remote",
+    HYBRID: "Hybrid",
+    ONSITE: "Onsite",
+  }).map(([key, value]) => ({
+    value: key,
+    label: value,
+  }));
+
+  const callStatusOptions = Object.entries({
+    TAKEN: "Taken",
+    MISSED: "Missed",
+  }).map(([key, value]) => ({
+    value: key,
+    label: value,
+  }));
+
   useEffect(() => {
     console.log("leads", leads);
     if (leads) {
@@ -54,7 +86,7 @@ const EditLeads = () => {
           : null,
         callSchedules: leads.callSchedules?.map((schedule) => ({
           ...schedule,
-          callDate: schedule.callDate ? dayjs(schedule.callDate) : null,
+          callDate: schedule.callDate ? dayjs(schedule.callDate, "YYYY-MM-DD") : null,
           followUps: schedule.followUps
             ? schedule.followUps?.map((followUp) => ({
                 ...followUp,
@@ -79,34 +111,34 @@ const EditLeads = () => {
   const handleSave = async () => {
     try {
       const updatedData = await form.validateFields();
-  
+
       console.log("leads.id:", leads.id);
       console.log("leads._id:", leads._id);
-  
+
       const leadId = leads.id
         ? leads.id
-        : leads._id && typeof leads._id === 'object'
-          ? `timestamp-${leads._id.timestamp}-date-${leads._id.date}`
-          : null;
-  
+        : leads._id && typeof leads._id === "object"
+        ? `timestamp-${leads._id.timestamp}-date-${leads._id.date}`
+        : null;
+
       console.log("leadId:", leadId); // Debugging to check what leadId is
-  
+
       // Ensure leadId is a valid string before proceeding
-      if (!leadId || typeof leadId !== 'string') {
+      if (!leadId || typeof leadId !== "string") {
         throw new Error("Invalid lead ID");
       }
-  
+
       const updatedDataWithUTC = {
         ...updatedData,
         callSchedules: updatedData.callSchedules?.map((schedule) => {
           const callDate = schedule.callDate ? new Date(schedule.callDate) : null;
-  
+
           if (callDate) {
             const timezoneOffset = -callDate.getTimezoneOffset() / 60;
             callDate.setHours(callDate.getHours() + timezoneOffset);
             callDate.setUTCHours(0, 0, 0, 0);
           }
-  
+
           return {
             ...schedule,
             callDate: callDate ? callDate.toISOString() : null,
@@ -114,13 +146,13 @@ const EditLeads = () => {
               const followupDate = followUp.followupDate
                 ? new Date(followUp.followupDate)
                 : null;
-  
+
               if (followupDate) {
                 const timezoneOffset = -followupDate.getTimezoneOffset() / 60;
                 followupDate.setHours(followupDate.getHours() + timezoneOffset);
                 followupDate.setUTCHours(0, 0, 0, 0);
               }
-  
+
               return {
                 ...followUp,
                 followupDate: followupDate ? followupDate.toISOString() : null,
@@ -129,12 +161,10 @@ const EditLeads = () => {
           };
         }),
       };
-  
+
       // Dispatch with correctly formatted ID
-      await dispatch(
-        updateLead({ id: leadId, ...updatedDataWithUTC })
-      ).unwrap();
-  
+      await dispatch(updateLead({ id: leadId, ...updatedDataWithUTC })).unwrap();
+
       notification.success({
         message: "Success",
         description: "Lead updated successfully!",
@@ -148,7 +178,6 @@ const EditLeads = () => {
       console.error("Validation failed:", error);
     }
   };
-  
 
   return (
     <React.Fragment>
@@ -166,43 +195,123 @@ const EditLeads = () => {
                 initialValues={form.getFieldsValue()}
               >
                 <Card title="Lead Information" style={{ width: "100%" }}>
-                  <Form.Item label="Company Name" name="companyName">
+                  <Form.Item
+                    label="Company Name"
+                    name="companyName"
+                    rules={[{ required: true, message: "Please input the Company Name!" }]}
+                  >
                     <Input readOnly={!editable} />
                   </Form.Item>
-                  <Form.Item label="Inviter Name" name="inviterName">
+
+                  <Form.Item
+                    label="Company Email"
+                    name="companyEmail"
+                    rules={[{ required: true, message: "Please input the Company Email!" }]}
+                  >
                     <Input readOnly={!editable} />
                   </Form.Item>
-                  <Form.Item label="Tech Stack" name="techStackName">
-                    <Input readOnly={!editable} />
-                  </Form.Item>
-                  <Form.Item label="BD Name" name="bdName">
-                    <Input readOnly={!editable} />
-                  </Form.Item>
-                  <Form.Item label="Dev Name" name="devName">
-                    <Input readOnly={!editable} />
-                  </Form.Item>
-                  <Form.Item label="Profile Email" name="profileName">
-                    <Input readOnly={!editable} />
-                  </Form.Item>
-                  <Form.Item label="Coordinator Name" name="coordinatorName">
-                    <Input readOnly={!editable} />
-                  </Form.Item>
-                  <Form.Item name="status" label="Status">
-                    <Select placeholder="Select a status" disabled={!editable}>
-                      {Object.entries({
-                        NEW: "New",
-                        IN_PROGRESS: "In Progress",
-                        COMPLETED: "Completed",
-                        CLOSED: "Closed",
-                      })?.map(([value, label]) => (
-                        <Select.Option key={value} value={value}>
-                          {label}
+
+                  <Form.Item
+                    label="Job Type"
+                    name="jobType"
+                    rules={[{ required: true, message: "Please select the Job Type!" }]}
+                  >
+                    <Select
+                      placeholder="Select Job Type"
+                      disabled={!editable}
+                    >
+                      {jobTypeOptions.map((option) => (
+                        <Select.Option key={option.value} value={option.value}>
+                          {option.label}
                         </Select.Option>
                       ))}
                     </Select>
                   </Form.Item>
-                  <Form.Item label="Description" name="description">
-                    <Input.TextArea readOnly={!editable} />
+
+                  <Form.Item
+                    label="Inviter Name"
+                    name="inviterName"
+                    rules={[{ required: true, message: "Please input the Inviter Name!" }]}
+                  >
+                    <Input readOnly={!editable} />
+                  </Form.Item>
+
+                  <Form.Item
+                    label="Tech Stack"
+                    name="techStackName"
+                    rules={[{ required: true, message: "Please input the Tech Stack!" }]}
+                  >
+                    <Input readOnly={!editable} />
+                  </Form.Item>
+
+                  <Form.Item
+                    label="BD Name"
+                    name="bdName"
+                    rules={[{ required: true, message: "Please input the BD Name!" }]}
+                  >
+                    <Input readOnly={!editable} />
+                  </Form.Item>
+
+                  <Form.Item
+                    label="Dev Name"
+                    name="devName"
+                    rules={[{ required: true, message: "Please input the Dev Name!" }]}
+                  >
+                    <Input readOnly={!editable} />
+                  </Form.Item>
+
+                  <Form.Item
+                    label="Coordinator Name"
+                    name="coordinatorName"
+                    rules={[{ required: true, message: "Please input the Coordinator Name!" }]}
+                  >
+                    <Input readOnly={!editable} />
+                  </Form.Item>
+
+                  <Form.Item
+                    label="Coordinator Email"
+                    name="coordinatorEmail"
+                    rules={[{ required: true, message: "Please input the Coordinator Email!" }]}
+                  >
+                    <Input readOnly={!editable} />
+                  </Form.Item>
+
+                  <Form.Item
+                    label="Profile Name"
+                    name="profileName"
+                    rules={[{ required: true, message: "Please input the Profile Name!" }]}
+                  >
+                    <Input readOnly={!editable} />
+                  </Form.Item>
+
+                  <Form.Item
+                    label="Profile Email"
+                    name="profileEmail"
+                    rules={[{ required: true, message: "Please input the Profile Email!" }]}
+                  >
+                    <Input readOnly={!editable} />
+                  </Form.Item>
+
+                  <Form.Item
+                    name="status"
+                    label="Status"
+                    rules={[{ required: true, message: "Please select a status!" }]}
+                  >
+                    <Select placeholder="Select a status" disabled={!editable}>
+                      {statusOptions.map((option) => (
+                        <Select.Option key={option.value} value={option.value}>
+                          {option.label}
+                        </Select.Option>
+                      ))}
+                    </Select>
+                  </Form.Item>
+
+                  <Form.Item
+                    label="Description"
+                    name="description"
+                    rules={[{ required: true, message: "Please input the Description!" }]}
+                  >
+                    <TextArea readOnly={!editable} rows={4} />
                   </Form.Item>
                 </Card>
 
@@ -239,41 +348,88 @@ const EditLeads = () => {
                             <Form.Item
                               label="Call Date"
                               name={[field.name, "callDate"]}
+                              rules={[{ required: true, message: "Please select the Call Date!" }]}
                             >
                               <DatePicker
                                 format="YYYY-MM-DD"
                                 disabled={!editable}
                               />
                             </Form.Item>
+
                             <Form.Item
                               label="Dev Name"
                               name={[field.name, "devName"]}
+                              rules={[{ required: true, message: "Please input the Dev Name!" }]}
                             >
                               <Input readOnly={!editable} />
                             </Form.Item>
+
                             <Form.Item
                               label="Coordinator Name"
                               name={[field.name, "coordinatorName"]}
+                              rules={[{ required: true, message: "Please input the Coordinator Name!" }]}
                             >
                               <Input readOnly={!editable} />
                             </Form.Item>
+
+                            <Form.Item
+                              label="Coordinator Email"
+                              name={[field.name, "coordinatorEmail"]}
+                              rules={[{ required: true, message: "Please input the Coordinator Email!" }]}
+                            >
+                              <Input readOnly={!editable} />
+                            </Form.Item>
+
                             <Form.Item
                               label="Lead Company Name"
                               name={[field.name, "leadCompanyName"]}
+                              rules={[{ required: true, message: "Please input the Lead Company Name!" }]}
                             >
                               <Input readOnly={!editable} />
                             </Form.Item>
+
+                            <Form.Item
+                              label="Lead Company Email"
+                              name={[field.name, "leadCompanyEmail"]}
+                              rules={[{ required: true, message: "Please input the Lead Company Email!" }]}
+                            >
+                              <Input readOnly={!editable} />
+                            </Form.Item>
+
                             <Form.Item
                               label="Call Notes"
                               name={[field.name, "notes"]}
+                              rules={[{ required: true, message: "Please input the Call Notes!" }]}
                             >
                               <Input.TextArea readOnly={!editable} />
                             </Form.Item>
-                            <Form.Item name={[field.name, "callCategory"]}>
+
+                            <Form.Item
+                              name={[field.name, "callCategory"]}
+                              label="Call Category"
+                              rules={[{ required: true, message: "Please select the Call Category!" }]}
+                            >
                               <Radio.Group disabled={!editable}>
-                                <Radio value="hr"> HR Round </Radio>
+                                <Radio value="hr">HR Round</Radio>
                                 <Radio value="technical">Technical Round</Radio>
                               </Radio.Group>
+                            </Form.Item>
+
+                            <Form.Item
+                              name={[field.name, "callStatus"]}
+                              label="Call Status"
+                              rules={[{ required: true, message: "Please select the Call Status!" }]}
+                            >
+                              <Select
+                                placeholder="Select a Call Status"
+                                disabled={!editable}
+                              >
+                                {callStatusOptions.map((option) => (
+                                  <Select.Option key={option.value} value={option.value}>
+                                    {option.label}
+                                  </Select.Option>
+                                ))}
+                              </Select>
                             </Form.Item>
 
                             <Form.List name={[field.name, "followUps"]}>
@@ -288,6 +444,8 @@ const EditLeads = () => {
                                       style={{
                                         margin: 22,
                                       }}
+                                      direction="vertical"
+                                      block
                                     >
                                       <Card
                                         size="small"
@@ -302,9 +460,7 @@ const EditLeads = () => {
                                         }}
                                         extra={
                                           editable &&
-                                          leads?.callSchedules?.[index]
-                                            ?.followUps &&
-                                          followIndex >=
+                                          (followIndex >=
                                             leads.callSchedules[index].followUps
                                               .length ? (
                                             <Button
@@ -316,7 +472,7 @@ const EditLeads = () => {
                                             >
                                               Remove Follow-up
                                             </Button>
-                                          ) : null
+                                          ) : null)
                                         }
                                       >
                                         <Form.Item
@@ -329,35 +485,12 @@ const EditLeads = () => {
                                           />
                                         </Form.Item>
                                         <Form.Item
-                                          label="Call Notes"
+                                          label="Follow-up Notes"
                                           name={[subField.name, "callNotes"]}
                                         >
                                           <Input.TextArea
                                             readOnly={!editable}
                                           />
-                                        </Form.Item>
-                                        <Form.Item
-                                          name={[subField.name, "status"]}
-                                          label="Status"
-                                        >
-                                          <Select
-                                            placeholder="Select a status"
-                                            disabled={!editable}
-                                          >
-                                            {Object.entries({
-                                              NEW: "New",
-                                              IN_PROGRESS: "In Progress",
-                                              COMPLETED: "Completed",
-                                              CLOSED: "Closed",
-                                            })?.map(([value, label]) => (
-                                              <Select.Option
-                                                key={value}
-                                                value={value}
-                                              >
-                                                {label}
-                                              </Select.Option>
-                                            ))}
-                                          </Select>
                                         </Form.Item>
                                       </Card>
                                     </Space>

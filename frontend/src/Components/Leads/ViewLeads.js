@@ -42,8 +42,8 @@ const mongoFieldMap = {
   "Dev Name": "'$devName'",
   "Profile Name": "'$profileName'",
   "Coordinator Name": "'$coordinatorName'",
-  "Status": "'$status'",
-  "Description": "'$description'",
+  Status: "'$status'",
+  Description: "'$description'",
   "First Contact Date": "'$firstContactDate'",
   "Call Date": "'$callSchedules.callDate'",
   "Call Notes": "'$callSchedules.notes'",
@@ -55,9 +55,7 @@ const mongoFieldMap = {
   "User ID": "'$userId'",
 };
 
-const suggestions = [
-  ...Object.keys(mongoFieldMap),
-];
+const suggestions = [...Object.keys(mongoFieldMap)];
 
 const ViewLeads = () => {
   const dispatch = useDispatch();
@@ -80,10 +78,11 @@ const ViewLeads = () => {
     techStackName: [],
   });
   const { data: filteredLeads } = useSelector((state) => state.searchLeads);
-  const [searchQuery, setSearchQuery] = useState(""); // Store search query
+  const [searchQuery, setSearchQuery] = useState("");
   const [autoCompleteOptions, setAutoCompleteOptions] = useState([]);
   const [query, setQuery] = useState("");
   const delimitersRegex = /([\s()'])/;
+  const leadsToDisplay = filteredLeads.length > 0 ? filteredLeads : allLeads;
 
   const handleSearchChange = (value) => {
     setSearchQuery(value);
@@ -133,7 +132,6 @@ const ViewLeads = () => {
   }, [dispatch]);
 
   const handleButtonClick = (filter) => {
-    dispatch(refreshFilter());
     setSelectedFilter(filter);
     setSelectedItem(null);
   };
@@ -210,7 +208,13 @@ const ViewLeads = () => {
   const handleCardClick = (id, value) => {
     let leadsForItem;
     if (filteredLeads.length !== 0) {
-      leadsForItem = filteredLeads.filter((lead) => lead.id === id);
+      if (selectedFilter) {
+        leadsForItem = filteredLeads.filter(
+          (lead) => lead[selectedFilter] === value
+        );
+      } else {
+        leadsForItem = filteredLeads.filter((lead) => lead.id === id);
+      }
     } else {
       if (selectedFilter) {
         leadsForItem = allLeads.filter(
@@ -243,12 +247,11 @@ const ViewLeads = () => {
 
   const countCalls = (filterType, value) => {
     return allLeads
-      .filter((lead) => lead[filterType] === value)
-      .reduce((acc, lead) => acc + lead.callSchedules.length, 0);
+      ?.filter((lead) => lead[filterType] === value)
+      .reduce((acc, lead) => acc + lead.callSchedules?.length, 0);
   };
 
   const capitalizeStatus = (status) => {
-    // Split the status by underscores or spaces, capitalize each word, and join them back together
     return status
       .toLowerCase()
       .split("_")
@@ -257,81 +260,50 @@ const ViewLeads = () => {
   };
 
   const renderDefaultView = () => {
-    if (filteredLeads.length !== 0) {
-      return filteredLeads.map((lead) => (
-        <Card
-          key={lead.id}
-          style={{ marginBottom: 16, cursor: "pointer" }}
-          onClick={() => handleCardClick(lead.id)}
-        >
-          <div>
-            <strong>Company Name:</strong> {lead.companyName}
-          </div>
-          <div>
-            <strong>Tech Stack:</strong> {lead.techStackName}
-          </div>
-          <div>
-            <strong>BD Name:</strong> {lead.bdName}
-          </div>
-          <div>
-            <strong>Dev Name:</strong> {lead.devName}
-          </div>
-          <div>
-            <strong>Profile Name:</strong> {lead.profileName}
-          </div>
-          <div>
-            <strong>Coordinator Name:</strong> {lead.coordinatorName}
-          </div>
-          <div>
-            <strong>Status:</strong> {capitalizeStatus(lead.status)}
-          </div>
-        </Card>
-      ));
-    } else {
-      return allLeads.map((lead) => (
-        <Card
-          key={lead.id}
-          style={{ marginBottom: 16, cursor: "pointer" }}
-          onClick={() => handleCardClick(lead.id)}
-        >
-          <div>
-            <strong>Company Name:</strong> {lead.companyName}
-          </div>
-          <div>
-            <strong>Tech Stack:</strong> {lead.techStackName}
-          </div>
-          <div>
-            <strong>BD Name:</strong> {lead.bdName}
-          </div>
-          <div>
-            <strong>Dev Name:</strong> {lead.devName}
-          </div>
-          <div>
-            <strong>Profile Name:</strong> {lead.profileName}
-          </div>
-          <div>
-            <strong>Coordinator Name:</strong> {lead.coordinatorName}
-          </div>
-          <div>
-            <strong>Status:</strong> {capitalizeStatus(lead.status)}
-          </div>
-        </Card>
-      ));
-    }
+    return leadsToDisplay.map((lead) => (
+      <Card
+        key={lead.id}
+        style={{ marginBottom: 16, cursor: "pointer" }}
+        onClick={() => handleCardClick(lead.id)}
+      >
+        <div>
+          <strong>Company Name:</strong> {lead.companyName}
+        </div>
+        <div>
+          <strong>Tech Stack:</strong> {lead.techStackName}
+        </div>
+        <div>
+          <strong>BD Name:</strong> {lead.bdName}
+        </div>
+        <div>
+          <strong>Dev Name:</strong> {lead.devName}
+        </div>
+        <div>
+          <strong>Profile Name:</strong> {lead.profileName}
+        </div>
+        <div>
+          <strong>Coordinator Name:</strong> {lead.coordinatorName}
+        </div>
+        <div>
+          <strong>Status:</strong> {capitalizeStatus(lead.status)}
+        </div>
+      </Card>
+    ));
   };
 
   const renderFilterCards = () => {
     const filterValues = [
-      ...new Set(allLeads.map((lead) => lead[selectedFilter])),
+      ...new Set(leadsToDisplay.map((lead) => lead[selectedFilter])),
     ].filter(Boolean);
 
     return filterValues.map((value) => {
-      const leadNames = allLeads
+      const leadsForItem = leadsToDisplay
         .filter((lead) => lead[selectedFilter] === value)
         .map((lead) => ({
           companyName: lead.companyName,
           status: lead.status,
-        })); // Get both company name and status
+          numCalls: lead.callSchedules ? lead.callSchedules.length : 0,
+        }));
 
       return (
         <Card
@@ -352,12 +324,12 @@ const ViewLeads = () => {
             </span>
           </div>
           <ol>
-            {leadNames.map((lead, index) => (
+            {leadsForItem.map((lead, index) => (
               <li key={index}>
                 {lead.companyName}{" "}
                 <span style={{ color: "gray" }}>
-                  ({capitalizeStatus(lead.status)})
-                </span>{" "}
+                  ({capitalizeStatus(lead.status)} - Calls: {lead.numCalls})
+                </span>
               </li>
             ))}
           </ol>
@@ -381,6 +353,12 @@ const ViewLeads = () => {
               <strong>Company Name:</strong> {lead.companyName}
             </div>
             <div style={{ marginBottom: 8 }}>
+              <strong>Company Email:</strong> {lead.companyEmail}
+            </div>
+            <div style={{ marginBottom: 8 }}>
+              <strong>Job Type:</strong> {lead.jobType}
+            </div>
+            <div style={{ marginBottom: 8 }}>
               <strong>Inviter Name:</strong> {lead.inviterName}
             </div>
             <div style={{ marginBottom: 8 }}>
@@ -393,10 +371,16 @@ const ViewLeads = () => {
               <strong>Dev Name:</strong> {lead.devName}
             </div>
             <div style={{ marginBottom: 8 }}>
-              <strong>Profile Email:</strong> {lead.profileName}
+              <strong>Profile Name:</strong> {lead.profileName}
+            </div>
+            <div style={{ marginBottom: 8 }}>
+              <strong>Profile Email:</strong> {lead.profileEmail}
             </div>
             <div style={{ marginBottom: 8 }}>
               <strong>Coordinator Name:</strong> {lead.coordinatorName}
+            </div>
+            <div style={{ marginBottom: 8 }}>
+              <strong>Coordinator Email:</strong> {lead.coordinatorEmail}
             </div>
             <div style={{ marginBottom: 8 }}>
               <strong>Status:</strong> {capitalizeStatus(lead.status)}
@@ -415,7 +399,7 @@ const ViewLeads = () => {
             </Button>
           </div>
         </div>
-        {lead.callSchedules && (
+        {lead?.callSchedules && (
           <div>
             <h4>Call Schedules:</h4>
             {lead.callSchedules.map((schedule) => (
@@ -423,7 +407,7 @@ const ViewLeads = () => {
                 key={schedule.id}
                 style={{
                   marginBottom: 8,
-                  ...(schedule.status === "COMPLETED"
+                  ...(schedule.callStatus === "COMPLETED"
                     ? followUpStyle
                     : callScheduleStyle),
                 }}
@@ -439,7 +423,15 @@ const ViewLeads = () => {
                   <strong>Lead Company Name:</strong> {schedule.leadCompanyName}
                 </div>
                 <div style={{ marginBottom: 8 }}>
+                  <strong>Lead Company Email:</strong>{" "}
+                  {schedule.leadCompanyEmail}
+                </div>
+                <div style={{ marginBottom: 8 }}>
                   <strong>Coordinator Name:</strong> {schedule.coordinatorName}
+                </div>
+                <div style={{ marginBottom: 8 }}>
+                  <strong>Coordinator Email:</strong>{" "}
+                  {schedule.coordinatorEmail}
                 </div>
                 <div style={{ marginBottom: 8 }}>
                   <strong>Dev Name:</strong> {schedule.devName}
@@ -448,24 +440,32 @@ const ViewLeads = () => {
                   <strong>Call Category:</strong> {schedule.callCategory}
                 </div>
                 <div style={{ marginBottom: 8 }}>
-                  <h4>Follow-ups:</h4>
-                  {schedule.followUps.map((followUp) => (
-                    <Card
-                      key={followUp.id}
-                      style={{
-                        marginBottom: 4,
-                      }}
-                    >
-                      <div style={{ marginBottom: 4 }}>
-                        <strong>Follow-up Date:</strong>{" "}
-                        {dayjs(followUp.followupDate).format("YYYY-MM-DD")}
-                      </div>
-                      <div style={{ marginBottom: 4 }}>
-                        <strong>Call Notes:</strong> {followUp.callNotes}
-                      </div>
-                    </Card>
-                  ))}
+                  <strong>Call Status:</strong>{" "}
+                  {capitalizeStatus(schedule.callStatus)}
                 </div>
+                {schedule.followUps && schedule.followUps.length > 0 && (
+                  <div>
+                    <h5>Follow-ups:</h5>
+                    {schedule.followUps.map((followUp) => (
+                      <Card
+                        key={followUp.id}
+                        type="inner"
+                        title={`Follow-up on ${dayjs(
+                          followUp.followupDate
+                        ).format("YYYY-MM-DD")}`}
+                        style={{ marginBottom: 4 }}
+                      >
+                        <div style={{ marginBottom: 4 }}>
+                          <strong>Follow-up Date:</strong>{" "}
+                          {dayjs(followUp.followupDate).format("YYYY-MM-DD")}
+                        </div>
+                        <div style={{ marginBottom: 4 }}>
+                          <strong>Call Notes:</strong> {followUp.callNotes}
+                        </div>
+                      </Card>
+                    ))}
+                  </div>
+                )}
               </Card>
             ))}
           </div>
