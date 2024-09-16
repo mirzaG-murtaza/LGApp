@@ -33,25 +33,6 @@ const followUpStyle = {
   borderColor: "#28a745",
 };
 
-const operatorMap = {
-  "+": "+",
-  "-": "-",
-  "/": "/",
-  "*": "*",
-  "%": "%",
-  and: "and",
-  or: "or",
-  "=": "=",
-  "<": "<=",
-  ">": ">=",
-  "!=": "!=",
-  Days: "Days",
-  Contain: "Contain",
-  NotContain: "NotContain",
-  IsNull: "IsNull",
-  HasValue: "HasValue",
-};
-
 // Mongo field mappings
 const mongoFieldMap = {
   "Company Name": "'$companyName'",
@@ -61,8 +42,8 @@ const mongoFieldMap = {
   "Dev Name": "'$devName'",
   "Profile Name": "'$profileName'",
   "Coordinator Name": "'$coordinatorName'",
-  Status: "'$status'",
-  Description: "'$description'",
+  "Status": "'$status'",
+  "Description": "'$description'",
   "First Contact Date": "'$firstContactDate'",
   "Call Date": "'$callSchedules.callDate'",
   "Call Notes": "'$callSchedules.notes'",
@@ -76,7 +57,6 @@ const mongoFieldMap = {
 
 // Combine operator and field maps for autocomplete suggestions
 const suggestions = [
-  ...Object.keys(operatorMap),
   ...Object.keys(mongoFieldMap),
 ];
 
@@ -92,7 +72,7 @@ const ViewLeads = () => {
   const [selectedFilter, setSelectedFilter] = useState(null);
   const [selectedItem, setSelectedItem] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [trigger, setTrigger] = useState(false)
+  const [trigger, setTrigger] = useState(false);
   const [selectedFilters, setSelectedFilters] = useState({
     devName: [],
     bdName: [],
@@ -103,14 +83,49 @@ const ViewLeads = () => {
   const { data: filteredLeads } = useSelector((state) => state.searchLeads);
   const [searchQuery, setSearchQuery] = useState(""); // Store search query
   const [autoCompleteOptions, setAutoCompleteOptions] = useState([]);
-  const [query, setQuery] = useState("")
+  const [query, setQuery] = useState("");
+  const delimitersRegex = /([\s()'])/;
 
   const handleSearchChange = (value) => {
     setSearchQuery(value);
+
+    const tokens = value.split(delimitersRegex);
+    let lastTokenIndex = tokens.length - 1;
+    while (
+      lastTokenIndex >= 0 &&
+      delimitersRegex.test(tokens[lastTokenIndex])
+    ) {
+      lastTokenIndex--;
+    }
+
+    const lastToken = lastTokenIndex >= 0 ? tokens[lastTokenIndex] : "";
+
     const filteredOptions = suggestions.filter((option) =>
-      option.toLowerCase().includes(value.toLowerCase())
+      option.toLowerCase().includes(lastToken.toLowerCase())
     );
+
     setAutoCompleteOptions(filteredOptions);
+  };
+
+  const handleSelect = (value) => {
+    const tokens = searchQuery.split(delimitersRegex);
+
+    let lastTokenIndex = tokens.length - 1;
+    while (
+      lastTokenIndex >= 0 &&
+      delimitersRegex.test(tokens[lastTokenIndex])
+    ) {
+      lastTokenIndex--;
+    }
+
+    if (lastTokenIndex >= 0) {
+      tokens[lastTokenIndex] = value;
+    }
+
+    const newValue = tokens.join("");
+
+    setSearchQuery(newValue);
+    setQuery(newValue);
   };
 
   useEffect(() => {
@@ -515,28 +530,27 @@ const ViewLeads = () => {
         visible={isModalVisible}
         onCancel={handleModalCancel}
         onOk={() => {
-          if(trigger === false){
-          const filterString = generateFilterString(selectedFilters);
-          const query = `${filterString}`;
-          if (filterString === "") {
-            dispatch(refreshFilter());
-            setSelectedFilter(null);
-            setIsModalVisible(false);
+          if (trigger === false) {
+            const filterString = generateFilterString(selectedFilters);
+            const query = `${filterString}`;
+            if (filterString === "") {
+              dispatch(refreshFilter());
+              setSelectedFilter(null);
+              setIsModalVisible(false);
+            } else {
+              dispatch(searchLeads(query));
+              console.log(query);
+              setSelectedFilter(null);
+              setIsModalVisible(false);
+              handleModalSubmit();
+            }
           } else {
             dispatch(searchLeads(query));
-            console.log(query);
-            setSelectedFilter(null);
+            setTrigger(false);
             setIsModalVisible(false);
-            handleModalSubmit();
+            setSearchQuery("");
           }
-        }
-      else{
-        dispatch(searchLeads(query));
-        setTrigger(false);
-        setIsModalVisible(false);
-        setSearchQuery("")
-      }}
-      }
+        }}
       >
         <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
           {/* Company Name */}
@@ -728,12 +742,18 @@ const ViewLeads = () => {
               options={autoCompleteOptions.map((option) => ({
                 value: option,
               }))}
+              value={searchQuery}
               onSearch={handleSearchChange}
+              onSelect={handleSelect}
               placeholder="Enter query..."
             >
               <Input
                 value={searchQuery}
-                onChange={(e) => {setQuery(e.target.value); setTrigger(true)}}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  setQuery(e.target.value);
+                  setTrigger(true);
+                }}
               />
             </AutoComplete>
           </div>
