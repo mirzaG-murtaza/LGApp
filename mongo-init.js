@@ -1,8 +1,8 @@
 db.createUser({
-    user: 'app_user',
-    pwd: 'app_password',
+    user: 'admin',
+    pwd: 'mavericks123',
     roles: [
-      { role: 'readWrite', db: 'your_database_name' }
+      { role: 'readWrite', db: 'mongodb' }
     ]
   });
   
