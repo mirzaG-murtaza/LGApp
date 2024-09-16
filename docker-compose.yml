@@ -65,7 +65,6 @@ services:
       - "32701:5432"  # Maps host port 32701 to container port 5432
     volumes:
       - pgdata:/var/lib/postgresql/data  # Named volume for PostgreSQL data
-      - ./postgres-init.sql:/docker-entrypoint-initdb.d/init.sql:ro  # Optional: Initialization SQL script
     networks:
       - app-network
 
