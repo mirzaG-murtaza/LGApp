@@ -55,7 +55,6 @@ const mongoFieldMap = {
   "User ID": "'$userId'",
 };
 
-// Combine operator and field maps for autocomplete suggestions
 const suggestions = [
   ...Object.keys(mongoFieldMap),
 ];
@@ -275,16 +274,16 @@ const ViewLeads = () => {
             <strong>BD Name:</strong> {lead.bdName}
           </div>
           <div>
-            <strong>Developer:</strong> {lead.devName}
+            <strong>Dev Name:</strong> {lead.devName}
           </div>
           <div>
-            <strong>Profile:</strong> {lead.profileName}
+            <strong>Profile Name:</strong> {lead.profileName}
           </div>
           <div>
-            <strong>Coordinator:</strong> {lead.coordinatorName}
+            <strong>Coordinator Name:</strong> {lead.coordinatorName}
           </div>
           <div>
-            <strong>Status:</strong> {lead.status}
+            <strong>Status:</strong> {capitalizeStatus(lead.status)}
           </div>
         </Card>
       ));
@@ -293,7 +292,7 @@ const ViewLeads = () => {
         <Card
           key={lead.id}
           style={{ marginBottom: 16, cursor: "pointer" }}
-          onClick={() => handleCardClick(lead.id)} // Card is clickable to show full details
+          onClick={() => handleCardClick(lead.id)}
         >
           <div>
             <strong>Company Name:</strong> {lead.companyName}
@@ -305,13 +304,13 @@ const ViewLeads = () => {
             <strong>BD Name:</strong> {lead.bdName}
           </div>
           <div>
-            <strong>Developer:</strong> {lead.devName}
+            <strong>Dev Name:</strong> {lead.devName}
           </div>
           <div>
-            <strong>Profile:</strong> {lead.profileName}
+            <strong>Profile Name:</strong> {lead.profileName}
           </div>
           <div>
-            <strong>Coordinator:</strong> {lead.coordinatorName}
+            <strong>Coordinator Name:</strong> {lead.coordinatorName}
           </div>
           <div>
             <strong>Status:</strong> {capitalizeStatus(lead.status)}
@@ -400,7 +399,7 @@ const ViewLeads = () => {
               <strong>Coordinator Name:</strong> {lead.coordinatorName}
             </div>
             <div style={{ marginBottom: 8 }}>
-              <strong>Status:</strong> {lead.status}
+              <strong>Status:</strong> {capitalizeStatus(lead.status)}
             </div>
             <div style={{ marginBottom: 8 }}>
               <strong>Description:</strong> {lead.description}
@@ -455,9 +454,6 @@ const ViewLeads = () => {
                       key={followUp.id}
                       style={{
                         marginBottom: 4,
-                        ...(followUp.status === "COMPLETED"
-                          ? followUpStyle
-                          : callScheduleStyle),
                       }}
                     >
                       <div style={{ marginBottom: 4 }}>
@@ -466,9 +462,6 @@ const ViewLeads = () => {
                       </div>
                       <div style={{ marginBottom: 4 }}>
                         <strong>Call Notes:</strong> {followUp.callNotes}
-                      </div>
-                      <div style={{ marginBottom: 4 }}>
-                        <strong>Status:</strong> {followUp.status}
                       </div>
                     </Card>
                   ))}
@@ -488,7 +481,7 @@ const ViewLeads = () => {
           <div style={{ display: "flex", alignItems: "center" }}>
             <FilterOutlined
               style={{ fontSize: "20px", marginRight: 16, cursor: "pointer" }}
-              onClick={showFilterModal} // Show modal when the filter icon is clicked
+              onClick={showFilterModal}
             />
             <Button
               onClick={() => handleButtonClick("devName")}
