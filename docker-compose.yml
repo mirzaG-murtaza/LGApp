@@ -59,12 +59,12 @@ services:
     container_name: my_postgres2
     environment:
       POSTGRES_DB: testdb
-      POSTGRES_USER: admin_user  # Replace with your PostgreSQL username
-      POSTGRES_PASSWORD: maverickspostgres123  # Replace with your PostgreSQL password
+      POSTGRES_USER: mynewuser
+      POSTGRES_PASSWORD: mypassword
     ports:
       - "32701:5432"  # Maps host port 32701 to container port 5432
     volumes:
-      - pgdata:/var/lib/postgresql/data  # Named volume for PostgreSQL data
+      - pgdata_0:/var/lib/postgresql/data  # Named volume for PostgreSQL data
     networks:
       - app-network
 
@@ -75,4 +75,4 @@ networks:
 volumes:
   mongo-data:  # Named volume for MongoDB data
   mongo-logs:  # Named volume for MongoDB logs
-  pgdata:  # Named volume for PostgreSQL data
+  pgdata_0:  # Named volume for PostgreSQL data
