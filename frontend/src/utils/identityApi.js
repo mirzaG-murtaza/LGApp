@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const identityApi = axios.create({
-  baseURL: 'http://localhost:8081/auth',
+  baseURL: 'http://67.205.128.51:8081/auth',
 });
 
 identityApi.interceptors.request.use(
