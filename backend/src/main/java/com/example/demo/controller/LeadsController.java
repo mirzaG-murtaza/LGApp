@@ -165,7 +165,7 @@ public class LeadsController {
                         return tempDoc;
                     })
                     .toList();
-            return ResponseEntity.status(HttpStatus.ACCEPTED).body(results);
+            return ResponseEntity.status(HttpStatus.OK).body(results);
 
         } catch (Exception e) {
             logger.error("No Record Found for this request", e);

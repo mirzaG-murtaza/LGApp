@@ -8,8 +8,8 @@ import GetLeads from "./Components/Leads/GetLeads";
 import Login from "./Components/Auth/Login";
 import ProtectedRoute from "./Components/ProtectedRoute";
 import { logout } from "./features/auth/authSlice";
-import ViewLeads from "./Components/Leads/ViewLeads";
 import EditLeads from "./Components/Leads/EditLead";
+import ViewLeads from "./Components/Leads/ViewLeads/ViewLeads";
 
 const App = () => {
   const [current, setCurrent] = useState("home");

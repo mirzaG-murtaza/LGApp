@@ -173,12 +173,19 @@ public class CommonUtils {
     }
 
     private String resolveOperationExpression(String operator, String operand1, String operand2) throws Exception {
-
-        if(!operatorMongoResolution.containsKey(operator)){
+        if (!operatorMongoResolution.containsKey(operator)) {
             throw new Exception("Invalid Expression");
         }
-        return operatorMongoResolution.get(operator)+ operand1 + ","+operand2+"]}";
 
+        if (Constants.DATE_FIELDS.contains(operand1)) {
+            // Wrap operand2 with $dateFromString
+            operand2 = "{$dateFromString: {dateString: " + operand2 + "}}";
+        } else if (Constants.DATE_FIELDS.contains(operand2)) {
+            // Wrap operand1 with $dateFromString
+            operand1 = "{$dateFromString: {dateString: " + operand1 + "}}";
+        }
+
+        return operatorMongoResolution.get(operator) + operand1 + "," + operand2 + "]}";
     }
 
     private Pair<String,Integer> parseOperand(char[] array,Integer i ) throws Exception {

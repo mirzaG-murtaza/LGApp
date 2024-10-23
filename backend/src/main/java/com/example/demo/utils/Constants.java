@@ -4,10 +4,7 @@ import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Constants {
 
@@ -21,6 +18,7 @@ public class Constants {
     public static final Map<String,String> functionalOperators = new HashMap<>();
     public static final Map<String,String> mongoFieldMap = new HashMap<>();
     public static final List<String> PRECEDENCE = new ArrayList<>();
+    public static final Set<String> DATE_FIELDS = new HashSet<>();
 
     static {
         operatorMap.put('+',"+");
@@ -144,6 +142,11 @@ public class Constants {
         PRECEDENCE.add("!=");
         PRECEDENCE.add("and");
         PRECEDENCE.add("or");
+
+        // Add date fields to the set
+        DATE_FIELDS.add("'$firstContactDate'");
+        DATE_FIELDS.add("'$callSchedules.callDate'");
+        DATE_FIELDS.add("'$callSchedules.followUps.followupDate'");
     }
 
 

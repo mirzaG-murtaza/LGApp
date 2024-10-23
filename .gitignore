@@ -1,0 +1,9 @@
+# Environment Variables
+.env
+
+# MongoDB Data and Logs
+mongo-data/
+mongo-logs/
+
+# PostgreSQL Data and Initialization Scripts
+pgdata_0/

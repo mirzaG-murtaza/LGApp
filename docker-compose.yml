@@ -12,6 +12,7 @@ services:
     environment:
       DB_HOST: report-database
       VALIDATION_HOST: manager
+      
 
   manager:
     build:
@@ -22,7 +23,7 @@ services:
     networks:
       - app-network
     environment:
-      DB_HOST_PG: db
+      DB_HOST_PG: db 
 
   frontend:
     build:
@@ -38,21 +39,14 @@ services:
       API_URL: backend
 
   report-database:
-    image: mongo:latest
+    image: mongo
     container_name: mongo
-    ports:
-      - "27017:27017"
     volumes:
-      - ./mongod.conf:/etc/mongo/mongod.conf
-      - mongo-data:/data/db  # Mount for database data
-      - mongo-logs:/var/log/mongodb  # Mount for logs
-      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+      - database:/data/db
+    ports:
+      - 27017:27017
     networks:
       - app-network
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: admin  # Replace with your MongoDB root username
-      MONGO_INITDB_ROOT_PASSWORD: mavericks123  # Replace with your MongoDB root password
-    command: ["mongod", "--config", "/etc/mongo/mongod.conf"]
 
   db:
     image: postgres:latest
@@ -62,17 +56,15 @@ services:
       POSTGRES_USER: mynewuser
       POSTGRES_PASSWORD: mypassword
     ports:
-      - "32701:5432"  # Maps host port 32701 to container port 5432
+      - "32701:5432" # Maps host port 32700 to container port 5432
     volumes:
-      - pgdata_0:/var/lib/postgresql/data  # Named volume for PostgreSQL data
+      - pgdata_0:/var/lib/postgresql/data
     networks:
       - app-network
-
 networks:
-  app-network:
+  app-network:    
     driver: bridge
 
 volumes:
-  mongo-data:  # Named volume for MongoDB data
-  mongo-logs:  # Named volume for MongoDB logs
-  pgdata_0:  # Named volume for PostgreSQL data
+  database:
+  pgdata_0:
