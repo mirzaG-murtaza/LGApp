@@ -1,6 +1,6 @@
 // LeadDetails.js
 import React from 'react';
-import { Card, Button } from 'antd';
+import { Card, Button, Descriptions } from 'antd';
 import { formatDate, capitalizeStatus } from '../Shared/utils';
 
 const LeadDetails = ({ selectedItem, handleEditLead, handleBackClick }) => {
@@ -13,53 +13,126 @@ const LeadDetails = ({ selectedItem, handleEditLead, handleBackClick }) => {
       </Button>
       {selectedItem.leads.map((lead) => (
         <Card key={lead.id} style={{ marginBottom: 16 }}>
-          <div style={{ justifyContent: 'space-between', display: 'flex' }}>
-            <div>
-              <div style={{ marginBottom: 8 }}>
-                <strong>First Contact Date:</strong> {formatDate(lead.firstContactDate)}
-              </div>
-              <div style={{ marginBottom: 8 }}>
-                <strong>Company Name:</strong> {lead.companyName}
-              </div>
-              <div style={{ marginBottom: 8 }}>
-                <strong>Company Email:</strong> {lead.companyEmail}
-              </div>
-              <div style={{ marginBottom: 8 }}>
-                <strong>Status:</strong> {capitalizeStatus(lead.status)}
-              </div>
-            </div>
-            <div>
-              <Button
-                onClick={() => handleEditLead(lead)}
-                style={{ marginBottom: 16 }}
-                type="primary"
-              >
-                Edit Lead
-              </Button>
-            </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+            <h2>{lead.companyName}</h2>
+            <Button type="primary" onClick={() => handleEditLead(lead)}>
+              Edit Lead
+            </Button>
           </div>
-          {lead?.callSchedules?.length > 0 && (
-            <div>
-              <h4>Call Schedules:</h4>
+          <Descriptions
+            bordered
+            column={1}
+            size="small"
+            style={{ marginTop: 16 }}
+          >
+            {Object.entries(lead)
+              .filter(
+                ([key]) =>
+                  key !== '_id' &&
+                  key !== 'firstContactDate' &&
+                  key !== 'callSchedules' &&
+                  key !== '_class'
+              )
+              .map(([key, value]) => {
+                // Handle nested objects or dates
+                let displayValue = value;
+                if (value && value.$date) {
+                  displayValue = formatDate(value.$date);
+                } else if (Array.isArray(value)) {
+                  displayValue = value.join(', ');
+                } else if (typeof value === 'object') {
+                  displayValue = JSON.stringify(value);
+                }
+                return (
+                  <Descriptions.Item
+                    label={key
+                      .replace(/([A-Z])/g, ' $1')
+                      .replace(/^./, (str) => str.toUpperCase())}
+                    key={key}
+                  >
+                    {displayValue}
+                  </Descriptions.Item>
+                );
+              })}
+          </Descriptions>
+
+          {lead.callSchedules?.length > 0 && (
+            <div style={{ marginTop: 24 }}>
+              <h3>Call Schedules</h3>
               {lead.callSchedules.map((schedule, idx) => (
                 <Card
                   key={idx}
-                  style={{
-                    marginBottom: 8,
-                    boxShadow:
-                      schedule.callStatus === 'COMPLETED'
-                        ? '0 4px 8px rgba(40, 167, 69, 0.6)'
-                        : '0 4px 8px rgba(0, 123, 255, 0.6)',
-                    borderColor:
-                      schedule.callStatus === 'COMPLETED' ? '#28a745' : '#007bff',
-                  }}
+                  type="inner"
+                  title={`Call on ${formatDate(
+                    schedule.callDate.$date,
+                    'YYYY-MM-DD'
+                  )}`}
+                  style={{ marginBottom: 16 }}
                 >
-                  <div style={{ marginBottom: 8 }}>
-                    <strong>Call Date:</strong> {formatDate(schedule.callDate, 'YYYY-MM-DD HH:mm:ss')}
-                  </div>
-                  <div style={{ marginBottom: 8 }}>
-                    <strong>Call Status:</strong> {capitalizeStatus(schedule.callStatus)}
-                  </div>
+                  <Descriptions bordered column={1} size="small">
+                    {Object.entries(schedule)
+                      .filter(([key]) => key !== 'followUps')
+                      .map(([key, value]) => {
+                        let displayValue = value;
+                        if (value && value.$date) {
+                          displayValue = formatDate(value.$date);
+                        } else if (Array.isArray(value)) {
+                          displayValue = value.join(', ');
+                        } else if (typeof value === 'object') {
+                          displayValue = JSON.stringify(value);
+                        }
+                        return (
+                          <Descriptions.Item
+                            label={key
+                              .replace(/([A-Z])/g, ' $1')
+                              .replace(/^./, (str) => str.toUpperCase())}
+                            key={key}
+                          >
+                            {displayValue}
+                          </Descriptions.Item>
+                        );
+                      })}
+                  </Descriptions>
+
+                  {schedule.followUps?.length > 0 && (
+                    <div style={{ marginTop: 16 }}>
+                      <h4>Follow-ups</h4>
+                      {schedule.followUps.map((followUp, fIdx) => (
+                        <Card
+                          key={fIdx}
+                          type="inner"
+                          style={{ marginBottom: 16 }}
+                          title={`Follow-up on ${formatDate(
+                            followUp.followupDate.$date,
+                            'YYYY-MM-DD'
+                          )}`}
+                        >
+                          <Descriptions bordered column={1} size="small">
+                            {Object.entries(followUp).map(([key, value]) => {
+                              let displayValue = value;
+                              if (value && value.$date) {
+                                displayValue = formatDate(value.$date);
+                              } else if (Array.isArray(value)) {
+                                displayValue = value.join(', ');
+                              } else if (typeof value === 'object') {
+                                displayValue = JSON.stringify(value);
+                              }
+                              return (
+                                <Descriptions.Item
+                                  label={key
+                                    .replace(/([A-Z])/g, ' $1')
+                                    .replace(/^./, (str) => str.toUpperCase())}
+                                  key={key}
+                                >
+                                  {displayValue}
+                                </Descriptions.Item>
+                              );
+                            })}
+                          </Descriptions>
+                        </Card>
+                      ))}
+                    </div>
+                  )}
                 </Card>
               ))}
             </div>

@@ -1,0 +1,25 @@
+/* AnimatedEye.css */
+
+.animated-eye {
+    position: relative;
+    width: 24px; /* Increased size for better visibility */
+    height: 24px;
+  }
+  
+  .eye-icon {
+    position: absolute;
+    top: 5px;
+    left: 6px;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    color: var(--text-color);
+  }
+  
+  .eye-icon.hidden {
+    opacity: 0;
+    pointer-events: none;
+  }
+  
+  .eye-icon.visible {
+    opacity: 1;
+    pointer-events: auto;
+  }  

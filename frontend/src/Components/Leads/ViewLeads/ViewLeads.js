@@ -48,13 +48,15 @@ const ViewLeads = () => {
     return Object.values(FILTER_KEYS);
   }, []);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const delimitersRegex = /([\s()'])/;
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const leadsToDisplay = filteredLeads.length > 0 ? filteredLeads : [];
 
   const generateDateRangeQuery = useCallback(() => {
     const now = dayjs();
-    let query = '';
+    let query = ''; 
 
     if (customDateRange) {
       const [start, end] = customDateRange;

@@ -1,7 +1,9 @@
 import React, { useEffect } from "react";
-import dayjs from "dayjs";
-import { useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router-dom";
+import {
+  CloseOutlined,
+  PlusOutlined,
+  MinusCircleOutlined,
+} from "@ant-design/icons";
 import {
   Form,
   Input,
@@ -12,89 +14,57 @@ import {
   Radio,
   Select,
   DatePicker,
-  Space,
   notification,
 } from "antd";
-import { refreshLeads } from "../../features/data/Leads/getLeadsSlice";
+import { useDispatch, useSelector } from "react-redux";
 import { updateLead } from "../../features/data/Leads/updateLeadSlice";
+import { refreshLeads } from "../../features/data/Leads/getLeadsSlice";
+import { motion, AnimatePresence } from "framer-motion";
+import dayjs from "dayjs";
+import "../../index.css";
 
 const { TextArea } = Input;
 
-// Styles
-const callScheduleStyle = {
-  boxShadow: "0 4px 8px rgba(0, 123, 255, 0.6)",
-  borderColor: "#007bff",
-};
-
-const followUpStyle = {
-  boxShadow: "0 4px 8px rgba(40, 167, 69, 0.6)",
-  borderColor: "#28a745",
-};
-
-const callScheduleTextColor = {
-  color: "#007bff",
-};
-
-const followUpTextColor = {
-  color: "#28a745",
-};
-
 const EditLeads = () => {
   const dispatch = useDispatch();
-  const { data: leads, editable } = useSelector((state) => {
-    console.log(state);
-    return state.editLead;
-  });
+  const { data: leads, editable } = useSelector((state) => state.editLead);
   const [form] = Form.useForm();
 
-  // Define options
-  const statusOptions = Object.entries({
-    NEW: "New",
-    IN_PROGRESS: "In Progress",
-    COMPLETED: "Completed",
-    REJECTED: "Rejected",
-    ABANDONED: "Abandoned",
-  }).map(([key, value]) => ({
-    value: key,
-    label: value,
-  }));
+  const statusOptions = [
+    { value: "NEW", label: "New" },
+    { value: "IN_PROGRESS", label: "In Progress" },
+    { value: "COMPLETED", label: "Completed" },
+    { value: "REJECTED", label: "Rejected" },
+    { value: "ABANDONED", label: "Abandoned" },
+  ];
 
-  const jobTypeOptions = Object.entries({
-    REMOTE: "Remote",
-    HYBRID: "Hybrid",
-    ONSITE: "Onsite",
-  }).map(([key, value]) => ({
-    value: key,
-    label: value,
-  }));
+  const jobTypeOptions = [
+    { value: "REMOTE", label: "Remote" },
+    { value: "HYBRID", label: "Hybrid" },
+    { value: "ONSITE", label: "Onsite" },
+  ];
 
-  const callStatusOptions = Object.entries({
-    TAKEN: "Taken",
-    MISSED: "Missed",
-  }).map(([key, value]) => ({
-    value: key,
-    label: value,
-  }));
+  const callStatusOptions = [
+    { value: "TAKEN", label: "Taken" },
+    { value: "MISSED", label: "Missed" },
+  ];
 
   useEffect(() => {
-    console.log("leads", leads);
     if (leads) {
       const initialValues = {
         ...leads,
         firstContactDate: leads.firstContactDate
-          ? dayjs(leads.firstContactDate, "YYYY-MM-DD")
+          ? dayjs(leads.firstContactDate)
           : null,
         callSchedules: leads.callSchedules?.map((schedule) => ({
           ...schedule,
-          callDate: schedule.callDate ? dayjs(schedule.callDate, "YYYY-MM-DD") : null,
-          followUps: schedule.followUps
-            ? schedule.followUps?.map((followUp) => ({
-                ...followUp,
-                followupDate: followUp.followupDate
-                  ? dayjs(followUp.followupDate, "YYYY-MM-DD")
-                  : null,
-              }))
-            : [],
+          callDate: schedule.callDate ? dayjs(schedule.callDate) : null,
+          followUps: schedule.followUps?.map((followUp) => ({
+            ...followUp,
+            followupDate: followUp.followupDate
+              ? dayjs(followUp.followupDate)
+              : null,
+          })),
         })),
       };
 
@@ -112,57 +82,28 @@ const EditLeads = () => {
     try {
       const updatedData = await form.validateFields();
 
-      console.log("leads.id:", leads.id);
-      console.log("leads._id:", leads._id);
+      const leadId = leads.id || leads._id;
 
-      const leadId = leads.id
-        ? leads.id
-        : leads._id && typeof leads._id === "object"
-        ? `timestamp-${leads._id.timestamp}-date-${leads._id.date}`
-        : null;
-
-      console.log("leadId:", leadId); // Debugging to check what leadId is
-
-      // Ensure leadId is a valid string before proceeding
-      if (!leadId || typeof leadId !== "string") {
+      if (!leadId) {
         throw new Error("Invalid lead ID");
       }
 
       const updatedDataWithUTC = {
         ...updatedData,
-        callSchedules: updatedData.callSchedules?.map((schedule) => {
-          const callDate = schedule.callDate ? new Date(schedule.callDate) : null;
-
-          if (callDate) {
-            const timezoneOffset = -callDate.getTimezoneOffset() / 60;
-            callDate.setHours(callDate.getHours() + timezoneOffset);
-            callDate.setUTCHours(0, 0, 0, 0);
-          }
-
-          return {
-            ...schedule,
-            callDate: callDate ? callDate.toISOString() : null,
-            followUps: schedule.followUps?.map((followUp) => {
-              const followupDate = followUp.followupDate
-                ? new Date(followUp.followupDate)
-                : null;
-
-              if (followupDate) {
-                const timezoneOffset = -followupDate.getTimezoneOffset() / 60;
-                followupDate.setHours(followupDate.getHours() + timezoneOffset);
-                followupDate.setUTCHours(0, 0, 0, 0);
-              }
-
-              return {
-                ...followUp,
-                followupDate: followupDate ? followupDate.toISOString() : null,
-              };
-            }),
-          };
-        }),
+        callSchedules: updatedData.callSchedules?.map((schedule) => ({
+          ...schedule,
+          callDate: schedule.callDate
+            ? schedule.callDate.toISOString()
+            : null,
+          followUps: schedule.followUps?.map((followUp) => ({
+            ...followUp,
+            followupDate: followUp.followupDate
+              ? followUp.followupDate.toISOString()
+              : null,
+          })),
+        })),
       };
 
-      // Dispatch with correctly formatted ID
       await dispatch(updateLead({ id: leadId, ...updatedDataWithUTC })).unwrap();
 
       notification.success({
@@ -180,361 +121,520 @@ const EditLeads = () => {
   };
 
   return (
-    <React.Fragment>
-      <div className="container">
-        <Link to="/viewLeads">
-          <Button style={{ marginBottom: 16 }}>Back</Button>
-        </Link>
-
-        {leads && (
-          <Row justify="center" style={{ marginTop: 24 }}>
-            <Col xs={24} sm={24} md={12} lg={12} xl={12}>
-              <Form
-                form={form}
-                layout="vertical"
-                initialValues={form.getFieldsValue()}
-              >
-                <Card title="Lead Information" style={{ width: "100%" }}>
-                  <Form.Item
-                    label="Company Name"
-                    name="companyName"
-                    rules={[{ required: true, message: "Please input the Company Name!" }]}
+    <div className="form-container">
+      {leads && (
+        <Form
+          form={form}
+          layout="vertical"
+          initialValues={form.getFieldsValue()}
+          onFinish={handleSave}
+          className="custom-form"
+          style={{ width: "100%", maxWidth: "800px", margin: "0 auto" }}
+        >
+          {/* Lead Information */}
+          <Card title="Lead Information" style={{ marginBottom: "20px" }}>
+            <Row gutter={16}>
+              <Col span={12}>
+                <Form.Item
+                  name="companyName"
+                  label="Company Name"
+                  rules={[
+                    { required: true, message: "Please enter company name" },
+                  ]}
+                >
+                  <Input readOnly={!editable} />
+                </Form.Item>
+              </Col>
+              <Col span={12}>
+                <Form.Item
+                  name="companyEmail"
+                  label="Company Email"
+                  rules={[
+                    { required: true, message: "Please enter company email" },
+                    { type: "email", message: "Please enter a valid email" },
+                  ]}
+                >
+                  <Input readOnly={!editable} />
+                </Form.Item>
+              </Col>
+            </Row>
+            {/* Additional Lead Information Fields */}
+            <Row gutter={16}>
+              <Col span={12}>
+                <Form.Item
+                  name="inviterName"
+                  label="Inviter Name"
+                  rules={[
+                    { required: true, message: "Please enter inviter name" },
+                  ]}
+                >
+                  <Input readOnly={!editable} />
+                </Form.Item>
+              </Col>
+              <Col span={12}>
+                <Form.Item
+                  name="techStackName"
+                  label="Tech Stack"
+                  rules={[
+                    { required: true, message: "Please enter tech stack" },
+                  ]}
+                >
+                  <Input readOnly={!editable} />
+                </Form.Item>
+              </Col>
+            </Row>
+            <Row gutter={16}>
+              <Col span={12}>
+                <Form.Item
+                  name="bdName"
+                  label="BD Name"
+                  rules={[
+                    { required: true, message: "Please enter BD name" },
+                  ]}
+                >
+                  <Input readOnly={!editable} />
+                </Form.Item>
+              </Col>
+              <Col span={12}>
+                <Form.Item
+                  name="devName"
+                  label="Dev Name"
+                  rules={[
+                    { required: true, message: "Please enter dev name" },
+                  ]}
+                >
+                  <Input readOnly={!editable} />
+                </Form.Item>
+              </Col>
+            </Row>
+            <Row gutter={16}>
+              <Col span={12}>
+                <Form.Item
+                  name="coordinatorName"
+                  label="Coordinator Name"
+                  rules={[
+                    { required: true, message: "Please enter coordinator name" },
+                  ]}
+                >
+                  <Input readOnly={!editable} />
+                </Form.Item>
+              </Col>
+              <Col span={12}>
+                <Form.Item
+                  name="coordinatorEmail"
+                  label="Coordinator Email"
+                  rules={[
+                    { required: true, message: "Please enter coordinator email" },
+                    { type: "email", message: "Please enter a valid email" },
+                  ]}
+                >
+                  <Input readOnly={!editable} />
+                </Form.Item>
+              </Col>
+            </Row>
+            <Row gutter={16}>
+              <Col span={12}>
+                <Form.Item
+                  name="profileName"
+                  label="Profile Name"
+                  rules={[
+                    { required: true, message: "Please enter profile name" },
+                  ]}
+                >
+                  <Input readOnly={!editable} />
+                </Form.Item>
+              </Col>
+              <Col span={12}>
+                <Form.Item
+                  name="profileEmail"
+                  label="Profile Email"
+                  rules={[
+                    { required: true, message: "Please enter profile email" },
+                    { type: "email", message: "Please enter a valid email" },
+                  ]}
+                >
+                  <Input readOnly={!editable} />
+                </Form.Item>
+              </Col>
+            </Row>
+            <Row gutter={16}>
+              <Col span={12}>
+                <Form.Item
+                  name="jobType"
+                  label="Job Type"
+                  rules={[
+                    { required: true, message: "Please select job type" },
+                  ]}
+                >
+                  <Select
+                    placeholder="Select Job Type"
+                    disabled={!editable}
                   >
-                    <Input readOnly={!editable} />
-                  </Form.Item>
-
-                  <Form.Item
-                    label="Company Email"
-                    name="companyEmail"
-                    rules={[{ required: true, message: "Please input the Company Email!" }]}
+                    {jobTypeOptions.map((option) => (
+                      <Select.Option key={option.value} value={option.value}>
+                        {option.label}
+                      </Select.Option>
+                    ))}
+                  </Select>
+                </Form.Item>
+              </Col>
+              <Col span={12}>
+                <Form.Item
+                  name="status"
+                  label="Status"
+                  rules={[
+                    { required: true, message: "Please select status" },
+                  ]}
+                >
+                  <Select
+                    placeholder="Select Status"
+                    disabled={!editable}
                   >
-                    <Input readOnly={!editable} />
-                  </Form.Item>
+                    {statusOptions.map((option) => (
+                      <Select.Option key={option.value} value={option.value}>
+                        {option.label}
+                      </Select.Option>
+                    ))}
+                  </Select>
+                </Form.Item>
+              </Col>
+            </Row>
+            <Form.Item
+              name="description"
+              label="Description"
+              rules={[
+                { required: true, message: "Please enter description" },
+              ]}
+            >
+              <TextArea rows={4} readOnly={!editable} />
+            </Form.Item>
+          </Card>
 
-                  <Form.Item
-                    label="Job Type"
-                    name="jobType"
-                    rules={[{ required: true, message: "Please select the Job Type!" }]}
-                  >
-                    <Select
-                      placeholder="Select Job Type"
-                      disabled={!editable}
+          {/* Call Schedules */}
+          <Form.List name="callSchedules">
+            {(fields, { add, remove }) => (
+              <>
+                <AnimatePresence>
+                  {fields.map((field, index) => (
+                    <motion.div
+                      key={field.key}
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: 0 }}
+                      style={{ overflow: "hidden" }}
                     >
-                      {jobTypeOptions.map((option) => (
-                        <Select.Option key={option.value} value={option.value}>
-                          {option.label}
-                        </Select.Option>
-                      ))}
-                    </Select>
-                  </Form.Item>
-
-                  <Form.Item
-                    label="Inviter Name"
-                    name="inviterName"
-                    rules={[{ required: true, message: "Please input the Inviter Name!" }]}
-                  >
-                    <Input readOnly={!editable} />
-                  </Form.Item>
-
-                  <Form.Item
-                    label="Tech Stack"
-                    name="techStackName"
-                    rules={[{ required: true, message: "Please input the Tech Stack!" }]}
-                  >
-                    <Input readOnly={!editable} />
-                  </Form.Item>
-
-                  <Form.Item
-                    label="BD Name"
-                    name="bdName"
-                    rules={[{ required: true, message: "Please input the BD Name!" }]}
-                  >
-                    <Input readOnly={!editable} />
-                  </Form.Item>
-
-                  <Form.Item
-                    label="Dev Name"
-                    name="devName"
-                    rules={[{ required: true, message: "Please input the Dev Name!" }]}
-                  >
-                    <Input readOnly={!editable} />
-                  </Form.Item>
-
-                  <Form.Item
-                    label="Coordinator Name"
-                    name="coordinatorName"
-                    rules={[{ required: true, message: "Please input the Coordinator Name!" }]}
-                  >
-                    <Input readOnly={!editable} />
-                  </Form.Item>
-
-                  <Form.Item
-                    label="Coordinator Email"
-                    name="coordinatorEmail"
-                    rules={[{ required: true, message: "Please input the Coordinator Email!" }]}
-                  >
-                    <Input readOnly={!editable} />
-                  </Form.Item>
-
-                  <Form.Item
-                    label="Profile Name"
-                    name="profileName"
-                    rules={[{ required: true, message: "Please input the Profile Name!" }]}
-                  >
-                    <Input readOnly={!editable} />
-                  </Form.Item>
-
-                  <Form.Item
-                    label="Profile Email"
-                    name="profileEmail"
-                    rules={[{ required: true, message: "Please input the Profile Email!" }]}
-                  >
-                    <Input readOnly={!editable} />
-                  </Form.Item>
-
-                  <Form.Item
-                    name="status"
-                    label="Status"
-                    rules={[{ required: true, message: "Please select a status!" }]}
-                  >
-                    <Select placeholder="Select a status" disabled={!editable}>
-                      {statusOptions.map((option) => (
-                        <Select.Option key={option.value} value={option.value}>
-                          {option.label}
-                        </Select.Option>
-                      ))}
-                    </Select>
-                  </Form.Item>
-
-                  <Form.Item
-                    label="Description"
-                    name="description"
-                    rules={[{ required: true, message: "Please input the Description!" }]}
-                  >
-                    <TextArea readOnly={!editable} rows={4} />
-                  </Form.Item>
-                </Card>
-
-                <Card title="Call Schedules" style={{ marginTop: 16 }}>
-                  <Form.List name="callSchedules">
-                    {(fields, { add, remove }) => (
-                      <>
-                        {fields?.map((field, index) => (
-                          <Card
-                            size="small"
-                            key={field.key}
-                            title={
-                              <span style={callScheduleTextColor}>
-                                Call Schedule {index + 1}
-                              </span>
-                            }
-                            style={{
-                              marginBottom: 20,
-                              ...callScheduleStyle,
-                            }}
-                            extra={
-                              editable &&
-                              (index >= leads?.callSchedules?.length ? (
-                                <Button
-                                  type="link"
-                                  onClick={() => remove(field.name)}
-                                  danger
-                                >
-                                  Remove Schedule
-                                </Button>
-                              ) : null)
-                            }
-                          >
+                      <Card
+                        key={field.key}
+                        title={`Call Schedule ${index + 1}`}
+                        style={{ marginBottom: "20px" }}
+                        extra={
+                          editable && (
+                            <Button
+                              type="link"
+                              icon={<CloseOutlined />}
+                              onClick={() => remove(field.name)}
+                              danger
+                            >
+                              Remove
+                            </Button>
+                          )
+                        }
+                      >
+                        <Row gutter={16}>
+                          <Col span={12}>
                             <Form.Item
-                              label="Call Date"
+                              {...field}
                               name={[field.name, "callDate"]}
-                              rules={[{ required: true, message: "Please select the Call Date!" }]}
+                              label="Call Date"
+                              rules={[
+                                {
+                                  required: true,
+                                  message: "Please select call date",
+                                },
+                              ]}
                             >
                               <DatePicker
                                 format="YYYY-MM-DD"
+                                style={{ width: "100%" }}
                                 disabled={!editable}
                               />
                             </Form.Item>
-
+                          </Col>
+                          <Col span={12}>
                             <Form.Item
-                              label="Dev Name"
+                              {...field}
                               name={[field.name, "devName"]}
-                              rules={[{ required: true, message: "Please input the Dev Name!" }]}
+                              label="Dev Name"
+                              rules={[
+                                { required: true, message: "Please enter dev name" },
+                              ]}
                             >
                               <Input readOnly={!editable} />
                             </Form.Item>
-
+                          </Col>
+                        </Row>
+                        <Row gutter={16}>
+                          <Col span={12}>
                             <Form.Item
-                              label="Coordinator Name"
+                              {...field}
                               name={[field.name, "coordinatorName"]}
-                              rules={[{ required: true, message: "Please input the Coordinator Name!" }]}
+                              label="Coordinator Name"
+                              rules={[
+                                {
+                                  required: true,
+                                  message: "Please enter coordinator name",
+                                },
+                              ]}
                             >
                               <Input readOnly={!editable} />
                             </Form.Item>
-
+                          </Col>
+                          <Col span={12}>
                             <Form.Item
-                              label="Coordinator Email"
+                              {...field}
                               name={[field.name, "coordinatorEmail"]}
-                              rules={[{ required: true, message: "Please input the Coordinator Email!" }]}
+                              label="Coordinator Email"
+                              rules={[
+                                {
+                                  required: true,
+                                  message: "Please enter coordinator email",
+                                },
+                                {
+                                  type: "email",
+                                  message: "Please enter a valid email",
+                                },
+                              ]}
                             >
                               <Input readOnly={!editable} />
                             </Form.Item>
-
+                          </Col>
+                        </Row>
+                        <Row gutter={16}>
+                          <Col span={12}>
                             <Form.Item
-                              label="Lead Company Name"
+                              {...field}
                               name={[field.name, "leadCompanyName"]}
-                              rules={[{ required: true, message: "Please input the Lead Company Name!" }]}
+                              label="Lead Company Name"
+                              rules={[
+                                {
+                                  required: true,
+                                  message: "Please enter lead company name",
+                                },
+                              ]}
                             >
                               <Input readOnly={!editable} />
                             </Form.Item>
-
+                          </Col>
+                          <Col span={12}>
                             <Form.Item
-                              label="Lead Company Email"
+                              {...field}
                               name={[field.name, "leadCompanyEmail"]}
-                              rules={[{ required: true, message: "Please input the Lead Company Email!" }]}
+                              label="Lead Company Email"
+                              rules={[
+                                {
+                                  required: true,
+                                  message: "Please enter lead company email",
+                                },
+                                {
+                                  type: "email",
+                                  message: "Please enter a valid email",
+                                },
+                              ]}
                             >
                               <Input readOnly={!editable} />
                             </Form.Item>
-
+                          </Col>
+                        </Row>
+                        <Form.Item
+                          {...field}
+                          name={[field.name, "notes"]}
+                          label="Call Notes"
+                          rules={[
+                            { required: true, message: "Please enter call notes" },
+                          ]}
+                        >
+                          <TextArea rows={2} readOnly={!editable} />
+                        </Form.Item>
+                        <Row gutter={16}>
+                          <Col span={12}>
                             <Form.Item
-                              label="Call Notes"
-                              name={[field.name, "notes"]}
-                              rules={[{ required: true, message: "Please input the Call Notes!" }]}
-                            >
-                              <Input.TextArea readOnly={!editable} />
-                            </Form.Item>
-
-                            <Form.Item
+                              {...field}
                               name={[field.name, "callCategory"]}
                               label="Call Category"
-                              rules={[{ required: true, message: "Please select the Call Category!" }]}
+                              rules={[
+                                {
+                                  required: true,
+                                  message: "Please select call category",
+                                },
+                              ]}
                             >
                               <Radio.Group disabled={!editable}>
                                 <Radio value="hr">HR Round</Radio>
                                 <Radio value="technical">Technical Round</Radio>
                               </Radio.Group>
                             </Form.Item>
-
+                          </Col>
+                          <Col span={12}>
                             <Form.Item
+                              {...field}
                               name={[field.name, "callStatus"]}
                               label="Call Status"
-                              rules={[{ required: true, message: "Please select the Call Status!" }]}
+                              rules={[
+                                {
+                                  required: true,
+                                  message: "Please select call status",
+                                },
+                              ]}
                             >
                               <Select
-                                placeholder="Select a Call Status"
+                                placeholder="Select Call Status"
                                 disabled={!editable}
                               >
                                 {callStatusOptions.map((option) => (
-                                  <Select.Option key={option.value} value={option.value}>
+                                  <Select.Option
+                                    key={option.value}
+                                    value={option.value}
+                                  >
                                     {option.label}
                                   </Select.Option>
                                 ))}
                               </Select>
                             </Form.Item>
+                          </Col>
+                        </Row>
 
-                            <Form.List name={[field.name, "followUps"]}>
-                              {(
-                                subFields,
-                                { add: addFollowUp, remove: removeFollowUp }
-                              ) => (
-                                <>
-                                  {subFields?.map((subField, followIndex) => (
-                                    <Space
-                                      key={subField.key}
-                                      style={{
-                                        margin: 22,
-                                      }}
-                                      direction="vertical"
-                                      block
+                        {/* Follow Ups */}
+                        <Form.List name={[field.name, "followUps"]}>
+                          {(
+                            subFields,
+                            { add: addFollowUp, remove: removeFollowUp }
+                          ) => (
+                            <>
+                              <AnimatePresence>
+                                {subFields.map((subField, followIndex) => (
+                                  <motion.div
+                                    key={subField.key}
+                                    initial={{ opacity: 0, height: 0 }}
+                                    animate={{ opacity: 1, height: "auto" }}
+                                    exit={{ opacity: 0, height: 0 }}
+                                    style={{ overflow: "hidden" }}
+                                  >
+                                    <Card
+                                      type="inner"
+                                      title={`Follow Up ${followIndex + 1}`}
+                                      style={{ marginBottom: "20px" }}
+                                      extra={
+                                        editable && (
+                                          <Button
+                                            type="link"
+                                            icon={<MinusCircleOutlined />}
+                                            onClick={() =>
+                                              removeFollowUp(subField.name)
+                                            }
+                                            danger
+                                          >
+                                            Remove
+                                          </Button>
+                                        )
+                                      }
                                     >
-                                      <Card
-                                        size="small"
-                                        title={
-                                          <span style={followUpTextColor}>
-                                            Follow Up {followIndex + 1}
-                                          </span>
-                                        }
-                                        style={{
-                                          marginBottom: 16,
-                                          ...followUpStyle,
-                                        }}
-                                        extra={
-                                          editable &&
-                                          (followIndex >=
-                                            leads.callSchedules[index].followUps
-                                              .length ? (
-                                            <Button
-                                              type="link"
-                                              onClick={() =>
-                                                removeFollowUp(subField.name)
-                                              }
-                                              danger
-                                            >
-                                              Remove Follow-up
-                                            </Button>
-                                          ) : null)
-                                        }
-                                      >
-                                        <Form.Item
-                                          label="Follow-up Date"
-                                          name={[subField.name, "followupDate"]}
-                                        >
-                                          <DatePicker
-                                            format="YYYY-MM-DD"
-                                            disabled={!editable}
-                                          />
-                                        </Form.Item>
-                                        <Form.Item
-                                          label="Follow-up Notes"
-                                          name={[subField.name, "callNotes"]}
-                                        >
-                                          <Input.TextArea
-                                            readOnly={!editable}
-                                          />
-                                        </Form.Item>
-                                      </Card>
-                                    </Space>
-                                  ))}
-                                  {editable && (
-                                    <Form.Item>
-                                      <Button
-                                        onClick={() => addFollowUp()}
-                                        block
-                                      >
-                                        Add Follow-up
-                                      </Button>
-                                    </Form.Item>
-                                  )}
-                                </>
+                                      <Row gutter={16}>
+                                        <Col span={12}>
+                                          <Form.Item
+                                            {...subField}
+                                            name={[
+                                              subField.name,
+                                              "followupDate",
+                                            ]}
+                                            label="Follow Up Date"
+                                            rules={[
+                                              {
+                                                required: true,
+                                                message: "Please select date",
+                                              },
+                                            ]}
+                                          >
+                                            <DatePicker
+                                              format="YYYY-MM-DD"
+                                              style={{ width: "100%" }}
+                                              disabled={!editable}
+                                            />
+                                          </Form.Item>
+                                        </Col>
+                                        <Col span={12}>
+                                          <Form.Item
+                                            {...subField}
+                                            name={[subField.name, "callNotes"]}
+                                            label="Follow Up Notes"
+                                            rules={[
+                                              {
+                                                required: true,
+                                                message: "Please enter notes",
+                                              },
+                                            ]}
+                                          >
+                                            <TextArea
+                                              rows={2}
+                                              readOnly={!editable}
+                                            />
+                                          </Form.Item>
+                                        </Col>
+                                      </Row>
+                                    </Card>
+                                  </motion.div>
+                                ))}
+                              </AnimatePresence>
+                              {editable && (
+                                <Form.Item>
+                                  <Button
+                                    type="dashed"
+                                    onClick={() => addFollowUp()}
+                                    block
+                                    icon={<PlusOutlined />}
+                                    className="addButtons"
+                                  >
+                                    Add Follow Up
+                                  </Button>
+                                </Form.Item>
                               )}
-                            </Form.List>
-                          </Card>
-                        ))}
-                        {editable && (
-                          <Form.Item>
-                            <Button onClick={() => add()} block>
-                              Add Call Schedule
-                            </Button>
-                          </Form.Item>
-                        )}
-                      </>
-                    )}
-                  </Form.List>
+                            </>
+                          )}
+                        </Form.List>
+                      </Card>
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
+                {editable && (
+                  <Form.Item>
+                    <Button
+                      type="dashed"
+                      onClick={() => add()}
+                      block
+                      icon={<PlusOutlined />}
+                      className="addButtons"
+                    >
+                      Add Call Schedule
+                    </Button>
+                  </Form.Item>
+                )}
+              </>
+            )}
+          </Form.List>
 
-                  {leads && editable && (
-                    <Form.Item>
-                      <Button type="primary" onClick={handleSave}>
-                        Update
-                      </Button>
-                    </Form.Item>
-                  )}
-                </Card>
-              </Form>
-            </Col>
-          </Row>
-        )}
-      </div>
-    </React.Fragment>
+          {leads && editable && (
+            <Form.Item>
+              <Button
+                type="primary"
+                htmlType="submit"
+                className="submit-button"
+              >
+                Update
+              </Button>
+            </Form.Item>
+          )}
+        </Form>
+      )}
+    </div>
   );
 };
 

@@ -1,0 +1,222 @@
+/* Login.css */
+
+:root {
+  --mouse-x: 50%;
+  --mouse-y: 50%;
+  --dark-purple: #1a1a2e;
+  --light-purple: #6a11cb;
+  --button-hover: #2575fc;
+  --card-bg: rgba(
+    26,
+    26,
+    46,
+    0.95
+  ); /* Slightly opaque for better readability */
+  --input-bg: rgba(106, 17, 203, 0.15);
+  --input-border: rgba(255, 255, 255, 0.2);
+  --text-color: #d29eff;
+  --alert-bg: rgba(255, 0, 0, 0.1);
+}
+
+body,
+html,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+.login-background {
+  min-height: 100vh;
+  /* Reintroduced radial gradient that shifts based on mouse position */
+  background: radial-gradient(
+      circle at var(--mouse-x) var(--mouse-y),
+      rgba(106, 17, 203, 0.2),
+      rgba(106, 17, 203, 0)
+    ),
+      linear-gradient(135deg, var(--dark-purple), #0f3460);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: background 0.3s ease;
+}
+
+.login-row {
+  width: 100%;
+}
+
+.login-card {
+  border-radius: 12px;
+  background: var(--card-bg);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid var(--input-border);
+}
+
+.login-card .ant-card-head {
+  background: transparent;
+  border-bottom: none;
+  color: var(--text-color);
+  font-size: 24px;
+  text-align: center;
+}
+
+.login-card .ant-card-body {
+  padding: 24px;
+}
+
+.spin-container {
+  display: flex;
+  justify-content: center;
+  margin: 16px 0;
+}
+
+.alert-message {
+  margin-bottom: 16px;
+}
+
+.login-card .ant-form-item-label > label {
+  color: var(--text-color);
+  font-weight: bold;
+}
+
+.password-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    border-width: 2px;
+    border-style: solid;
+    border-color: #6a11cb; /* Light purple as the default border color */
+    border-radius: 8px; /* Round corners */
+    transition: border-image 0.3s ease, border-color 0.3s ease; /* Smooth transition */
+    border-image: radial-gradient(
+      circle at var(--mouse-x) var(--mouse-y),
+      #6a11cb, /* Light purple */
+      #8e44ad, /* Medium purple */
+      #3a0ca3, /* Darker purple */
+      rgba(0, 0, 0, 0)
+    ) 1;
+  }
+
+.password-input {
+  width: 100%;
+  padding-right: 40px; /* Space for the Eye icon */
+  border-radius: 0px;
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text-color);
+  transition: border-color 0.3s, box-shadow 0.3s, opacity 0.3s, transform 0.3s;
+}
+
+.username-input{
+    width: 100%;
+    padding-right: 40px; /* Space for the Eye icon */
+    border-radius: 0px;
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
+    color: var(--text-color);
+    transition: border-color 0.3s, box-shadow 0.3s, opacity 0.3s, transform 0.3s;
+}
+
+.password-input::placeholder {
+  color: rgb(159, 69, 255);
+}
+
+.username-input::placeholder {
+    color: rgb(159, 69, 255);
+  }
+
+.password-input:hover,
+.username-input:hover,
+.password-input:focus,
+.username-input:focus {
+  border-color: var(--input-border); /* Maintain original border color on hover and focus */
+  background-color: var(--input-bg); /* Maintain original background color on hover and focus */
+  box-shadow: none; /* Remove any box-shadow on hover and focus */
+}
+
+.password-toggle-button {
+  margin-left: 8px; /* Space between input and button */
+  background: transparent;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+
+
+.password-input.hidden {
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.password-input.visible {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.login-card .ant-btn-primary {
+  background-color: var(--light-purple);
+  border-color: var(--light-purple);
+  border-radius: 8px;
+  transition: background-color 0.3s, border-color 0.3s;
+}
+
+.login-card .ant-btn-primary:hover,
+.login-card .ant-btn-primary:focus {
+  background-color: var(--button-hover);
+  border-color: var(--button-hover);
+}
+
+.login-card .ant-card-title {
+  color: var(--text-color);
+  text-align: center;
+}
+
+.login-card .ant-alert-error {
+  border-radius: 8px;
+}
+
+.shake {
+  animation: shake 0.3s;
+}
+
+@keyframes shake {
+  0% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-8px);
+  }
+  40% {
+    transform: translateX(8px);
+  }
+  60% {
+    transform: translateX(-8px);
+  }
+  80% {
+    transform: translateX(8px);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+/* Password Input Animations */
+
+.password-input.hidden {
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.password-input.visible {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}

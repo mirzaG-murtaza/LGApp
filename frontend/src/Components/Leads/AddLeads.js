@@ -1,8 +1,11 @@
 import React from "react";
-import { CloseOutlined } from "@ant-design/icons";
+import {
+  CloseOutlined,
+  PlusOutlined,
+  MinusCircleOutlined,
+} from "@ant-design/icons";
 import {
   Card,
-  Space,
   Button,
   DatePicker,
   Form,
@@ -10,370 +13,551 @@ import {
   Radio,
   Select,
   notification,
+  Row,
+  Col,
 } from "antd";
-import { useDispatch, useSelector } from "react-redux";
-import "../../index.css";
+import { useDispatch } from "react-redux";
 import { addLeads } from "../../features/data/Leads/addLeadsSlice";
+import { motion, AnimatePresence } from "framer-motion";
+import "../../index.css";
 
 const { TextArea } = Input;
 
-const followUpStyle = {
-  boxShadow: "0 4px 8px rgba(96, 96, 96, 0.6)",
-  borderColor: "#e4e4e4",
-  margin: 20,
-  marginLeft: 110,
-};
-
-const callScheduleTextColor = {
-  color: "#007bff",
-};
-
-const followUpTextColor = {
-  color: "#28a745",
-};
-
 const AddLeads = () => {
   const dispatch = useDispatch();
-  const { status: addLeadsStatus, error: addLeadsError } = useSelector(
-    (state) => state.addLeads
-  );
   const [form] = Form.useForm();
 
-  const status = {
-    NEW: "New",
-    IN_PROGRESS: "In Progress",
-    COMPLETED: "Completed",
-    REJECTED: "Rejected",
-    ABANDOND: "Abandond",
-  };
+  const statusOptions = [
+    { value: "NEW", label: "New" },
+    { value: "IN_PROGRESS", label: "In Progress" },
+    { value: "COMPLETED", label: "Completed" },
+    { value: "REJECTED", label: "Rejected" },
+    { value: "ABANDONED", label: "Abandoned" },
+  ];
 
-  const jobType = {
-    REMOTE: "Remote",
-    HYBRID: "Hybrid",
-    ONSITE: "Onsite",
-  };
+  const jobTypeOptions = [
+    { value: "REMOTE", label: "Remote" },
+    { value: "HYBRID", label: "Hybrid" },
+    { value: "ONSITE", label: "Onsite" },
+  ];
 
-  const callStatus = {
-    TAKEN: "Taken",
-    MISSED: "Missed"
-  };
+  const callStatusOptions = [
+    { value: "TAKEN", label: "Taken" },
+    { value: "MISSED", label: "Missed" },
+  ];
 
-  const statusOptions = Object.entries(status).map(([key, value]) => ({
-    value: key,
-    label: value,
-  }));
-
-  const jobTypeOptions = Object.entries(jobType).map(([key, value]) => ({
-    value: key,
-    label: value,
-  }));
-
-  const callStatusOptions = Object.entries(callStatus).map(([key, value]) => ({
-    value: key,
-    label: value,
-  }));
-
-  const handleFinish = (values) => {
-    console.log("Form data:", values);
-    dispatch(addLeads(values))
-      .unwrap()
-      .then(() => {
-        if (addLeadsStatus === "succeeded") {
-          notification.success({
-            message: "Success",
-            description: "Lead added successfully!",
-          });
-          form.resetFields();
-        } else if (addLeadsStatus === "failed") {
-          notification.error({
-            message: "Error",
-            description: addLeadsError || "There was an issue adding the lead.",
-          });
-        }
-      })
-      .catch(() => {
-        notification.error({
-          message: "Error",
-          description: addLeadsError || "There was an issue adding the lead.",
-        });
+  const handleFinish = async (values) => {
+    try {
+      console.log("Form data:", values);
+      await dispatch(addLeads(values)).unwrap();
+      notification.success({
+        message: "Success",
+        description: "Lead added successfully!",
       });
+      form.resetFields();
+    } catch (error) {
+      notification.error({
+        message: "Error",
+        description: error.message || "There was an issue adding the lead.",
+      });
+    }
   };
 
   return (
     <div className="form-container">
-      <Form
-        form={form}
-        labelCol={{ span: 10 }}
-        wrapperCol={{ span: 14 }}
-        layout="horizontal"
-        onFinish={handleFinish}
+      <Card
+        title="Add New Lead"
+        style={{ width: "100%", maxWidth: "800px", margin: "0 auto" }}
       >
-        <Form.Item
-          name="companyName"
-          rules={[{ required: true, message: "Please input!" }]}
-          label="Company Name"
+        <Form
+          form={form}
+          layout="vertical"
+          onFinish={handleFinish}
+          className="custom-form"
+          style={{ width: "100%" }}
         >
-          <Input />
-        </Form.Item>
-        <Form.Item
-          name="companyEmail"
-          rules={[{ required: true, message: "Please input!" }]}
-          label="Company Email"
-        >
-          <Input />
-        </Form.Item>
-        <Form.Item
-          name="jobType"
-          label="JobType"
-          rules={[{ required: true, message: "Please select the Job Type!" }]}
-        >
-          <Select placeholder="Select Job Type">
-            {jobTypeOptions.map((option) => (
-              <Select.Option key={option.value} value={option.value}>
-                {option.label}
-              </Select.Option>
-            ))}
-          </Select>
-        </Form.Item>
-        <Form.Item
-          name="inviterName"
-          rules={[{ required: true, message: "Please input!" }]}
-          label="Inviter Name"
-        >
-          <Input />
-        </Form.Item>
-        <Form.Item
-          name="techStackName"
-          rules={[{ required: true, message: "Please input!" }]}
-          label="Tech Stack"
-        >
-          <Input />
-        </Form.Item>
-        <Form.Item
-          name="bdName"
-          rules={[{ required: true, message: "Please input!" }]}
-          label="BD Name"
-        >
-          <Input />
-        </Form.Item>
-        <Form.Item
-          name="devName"
-          rules={[{ required: true, message: "Please input!" }]}
-          label="Dev Name"
-        >
-          <Input />
-        </Form.Item>
-        <Form.Item
-          name="coordinatorName"
-          rules={[{ required: true, message: "Please input!" }]}
-          label="Coordinator Name"
-        >
-          <Input />
-        </Form.Item>
-        <Form.Item
-          name="coordinatorEmail"
-          rules={[{ required: true, message: "Please input!" }]}
-          label="Coordinator Email"
-        >
-          <Input />
-        </Form.Item>
-        <Form.Item
-          name="profileName"
-          rules={[{ required: true, message: "Please input!" }]}
-          label="Profile Name"
-        >
-          <Input />
-        </Form.Item>
-        <Form.Item
-          name="profileEmail"
-          rules={[{ required: true, message: "Please input!" }]}
-          label="Profile Email"
-        >
-          <Input />
-        </Form.Item>
-        <Form.Item
-          name="status"
-          label="Status"
-          rules={[{ required: true, message: "Please select a status!" }]}
-        >
-          <Select placeholder="Select a status">
-            {statusOptions.map((option) => (
-              <Select.Option key={option.value} value={option.value}>
-                {option.label}
-              </Select.Option>
-            ))}
-          </Select>
-        </Form.Item>
-        <Form.Item
-          name="description"
-          rules={[{ required: true, message: "Please input!" }]}
-          label="Description"
-        >
-          <TextArea rows={6} />
-        </Form.Item>
-        <Form.List name="callSchedules">
-          {(fields, { add, remove }) => (
-            <div
-              style={{ display: "flex", rowGap: 16, flexDirection: "column" }}
-            >
-              {fields.map((field) => (
-                <Card
-                  size="small"
-                  title={
-                    <span style={callScheduleTextColor}>
-                      Call Schedule {field.name + 1}
-                    </span>
-                  }
-                  key={field.key}
-                  extra={<CloseOutlined onClick={() => remove(field.name)} />}
-                  className="callScheduleStyle"
+          {/* Lead Information */}
+          <Card
+            type="inner"
+            title="Lead Information"
+            style={{ marginBottom: "20px" }}
+          >
+            <Row gutter={16}>
+              <Col span={12}>
+                <Form.Item
+                  name="companyName"
+                  label="Company Name"
+                  rules={[
+                    { required: true, message: "Please enter company name" },
+                  ]}
                 >
-                  <Form.Item
-                    rules={[{ required: true, message: "Please input!" }]}
-                    label="Dev Name"
-                    name={[field.name, "devName"]}
-                  >
-                    <Input />
-                  </Form.Item>
-                  <Form.Item
-                    rules={[{ required: true, message: "Please input!" }]}
-                    label="Coordinator Name"
-                    name={[field.name, "coordinatorName"]}
-                  >
-                    <Input />
-                  </Form.Item>
-                  <Form.Item
-                    rules={[{ required: true, message: "Please input!" }]}
-                    label="Coordinator Email"
-                    name={[field.name, "coordinatorEmail"]}
-                  >
-                    <Input />
-                  </Form.Item>
-                  <Form.Item
-                    rules={[{ required: true, message: "Please input!" }]}
-                    label="Lead Company Name"
-                    name={[field.name, "leadCompanyName"]}
-                  >
-                    <Input />
-                  </Form.Item>
-                  <Form.Item
-                    rules={[{ required: true, message: "Please input!" }]}
-                    label="Lead Company Email"
-                    name={[field.name, "leadCompanyEmail"]}
-                  >
-                    <Input />
-                  </Form.Item>
+                  <Input placeholder="Company Name" />
+                </Form.Item>
+              </Col>
+              <Col span={12}>
+                <Form.Item
+                  name="companyEmail"
+                  label="Company Email"
+                  rules={[
+                    { required: true, message: "Please enter company email" },
+                    { type: "email", message: "Please enter a valid email" },
+                  ]}
+                >
+                  <Input placeholder="Company Email" />
+                </Form.Item>
+              </Col>
+            </Row>
+            <Row gutter={16}>
+              <Col span={12}>
+                <Form.Item
+                  name="inviterName"
+                  label="Inviter Name"
+                  rules={[
+                    { required: true, message: "Please enter inviter name" },
+                  ]}
+                >
+                  <Input placeholder="Inviter Name" />
+                </Form.Item>
+              </Col>
+              <Col span={12}>
+                <Form.Item
+                  name="techStackName"
+                  label="Tech Stack"
+                  rules={[
+                    { required: true, message: "Please enter tech stack" },
+                  ]}
+                >
+                  <Input placeholder="Tech Stack" />
+                </Form.Item>
+              </Col>
+            </Row>
+            <Row gutter={16}>
+              <Col span={12}>
+                <Form.Item
+                  name="bdName"
+                  label="BD Name"
+                  rules={[{ required: true, message: "Please enter BD name" }]}
+                >
+                  <Input placeholder="BD Name" />
+                </Form.Item>
+              </Col>
+              <Col span={12}>
+                <Form.Item
+                  name="devName"
+                  label="Dev Name"
+                  rules={[{ required: true, message: "Please enter dev name" }]}
+                >
+                  <Input placeholder="Developer Name" />
+                </Form.Item>
+              </Col>
+            </Row>
+            <Row gutter={16}>
+              <Col span={12}>
+                <Form.Item
+                  name="coordinatorName"
+                  label="Coordinator Name"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Please enter coordinator name",
+                    },
+                  ]}
+                >
+                  <Input placeholder="Coordinator Name" />
+                </Form.Item>
+              </Col>
+              <Col span={12}>
+                <Form.Item
+                  name="coordinatorEmail"
+                  label="Coordinator Email"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Please enter coordinator email",
+                    },
+                    { type: "email", message: "Please enter a valid email" },
+                  ]}
+                >
+                  <Input placeholder="Coordinator Email" />
+                </Form.Item>
+              </Col>
+            </Row>
+            <Row gutter={16}>
+              <Col span={12}>
+                <Form.Item
+                  name="profileName"
+                  label="Profile Name"
+                  rules={[
+                    { required: true, message: "Please enter profile name" },
+                  ]}
+                >
+                  <Input placeholder="Profile Name" />
+                </Form.Item>
+              </Col>
+              <Col span={12}>
+                <Form.Item
+                  name="profileEmail"
+                  label="Profile Email"
+                  rules={[
+                    { required: true, message: "Please enter profile email" },
+                    { type: "email", message: "Please enter a valid email" },
+                  ]}
+                >
+                  <Input placeholder="Profile Email" />
+                </Form.Item>
+              </Col>
+            </Row>
+            <Row gutter={16}>
+              <Col span={12}>
+                <Form.Item
+                  name="jobType"
+                  label="Job Type"
+                  rules={[
+                    { required: true, message: "Please select job type" },
+                  ]}
+                >
+                  <Select placeholder="Select Job Type">
+                    {jobTypeOptions.map((option) => (
+                      <Select.Option key={option.value} value={option.value}>
+                        {option.label}
+                      </Select.Option>
+                    ))}
+                  </Select>
+                </Form.Item>
+              </Col>
+              <Col span={12}>
+                <Form.Item
+                  name="status"
+                  label="Status"
+                  rules={[{ required: true, message: "Please select status" }]}
+                >
+                  <Select placeholder="Select Status">
+                    {statusOptions.map((option) => (
+                      <Select.Option key={option.value} value={option.value}>
+                        {option.label}
+                      </Select.Option>
+                    ))}
+                  </Select>
+                </Form.Item>
+              </Col>
+            </Row>
+            <Form.Item
+              name="description"
+              label="Description"
+              rules={[{ required: true, message: "Please enter description" }]}
+            >
+              <TextArea rows={4} placeholder="Enter description" />
+            </Form.Item>
+          </Card>
 
-                  <Form.Item
-                    rules={[{ required: true, message: "Please input!" }]}
-                    label="Call Notes"
-                    name={[field.name, "notes"]}
-                  >
-                    <Input />
-                  </Form.Item>
-                  <Form.Item
-                    name={[field.name, "callCategory"]}
-                    rules={[{ required: true, message: "Please select!" }]}
-                    label="Call Category"
-                  >
-                    <Radio.Group>
-                      <Radio value="hr"> HR Round </Radio>
-                      <Radio value="technical"> Technical Round </Radio>
-                    </Radio.Group>
-                  </Form.Item>
-                  <Form.Item
-                    name={[field.name, "callDate"]}
-                    label="Call Date"
-                    rules={[{ required: true, message: "Please select!" }]}
-                  >
-                    <DatePicker />
-                  </Form.Item>
-                  <Form.Item
-                    name={[field.name, "callStatus"]}
-                    label="Call Status"
-                  >
-                    <Select placeholder="Select a Status">
-                      {callStatusOptions.map((option) => (
-                        <Select.Option key={option.value} value={option.value}>
-                          {option.label}
-                        </Select.Option>
-                      ))}
-                    </Select>
-                  </Form.Item>
-
-                  <Form.List name={[field.name, "followUps"]}>
-                    {(
-                      subFields,
-                      { add: addFollowUp, remove: removeFollowUp }
-                    ) => (
-                      <div>
-                        {subFields.map((subField) => (
-                          <Space key={subField.key}>
-                            <Card
-                              size="small"
-                              title={
-                                <span style={followUpTextColor}>
-                                  Follow Up {subField.name + 1}
-                                </span>
-                              }
-                              style={followUpStyle}
-                              extra={
-                                <Button
-                                  type="link"
-                                  onClick={() => removeFollowUp(subField.name)}
-                                  danger
-                                >
-                                  Remove Follow Up
-                                </Button>
-                              }
+          {/* Call Schedules */}
+          <Form.List name="callSchedules">
+            {(fields, { add, remove }) => (
+              <>
+                <AnimatePresence>
+                  {fields.map((field, index) => (
+                    <motion.div
+                      key={field.key}
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: 0 }}
+                      style={{ overflow: "hidden" }}
+                    >
+                      <Card
+                        key={field.key}
+                        title={`Call Schedule ${index + 1}`}
+                        style={{ marginBottom: "20px" }}
+                        extra={
+                          <Button
+                            type="link"
+                            icon={<CloseOutlined />}
+                            onClick={() => remove(field.name)}
+                            danger
+                          >
+                            Remove
+                          </Button>
+                        }
+                      >
+                        <Row gutter={16}>
+                          <Col span={12}>
+                            <Form.Item
+                              {...field}
+                              name={[field.name, "devName"]}
+                              label="Dev Name"
+                              rules={[
+                                {
+                                  required: true,
+                                  message: "Please enter dev name",
+                                },
+                              ]}
                             >
-                              <Form.Item
-                                name={[subField.name, "followupDate"]}
-                                label="Follow Up Date"
-                              >
-                                <DatePicker />
-                              </Form.Item>
-                              <Form.Item
-                                name={[subField.name, "callNotes"]}
-                                label="Follow Up Notes"
-                              >
-                                <Input placeholder="Follow Up Notes" />
-                              </Form.Item>
-                            </Card>
-                            <Button
-                              type="primary"
-                              danger
-                              onClick={() => removeFollowUp(subField.name)}
+                              <Input placeholder="Developer Name" />
+                            </Form.Item>
+                          </Col>
+                          <Col span={12}>
+                            <Form.Item
+                              {...field}
+                              name={[field.name, "coordinatorName"]}
+                              label="Coordinator Name"
+                              rules={[
+                                {
+                                  required: true,
+                                  message: "Please enter coordinator name",
+                                },
+                              ]}
                             >
-                              Remove Follow Up
-                            </Button>
-                          </Space>
-                        ))}
-                        <Button
-                          onClick={() => addFollowUp()}
-                          block
-                          className="addButtons"
+                              <Input placeholder="Coordinator Name" />
+                            </Form.Item>
+                          </Col>
+                        </Row>
+                        <Row gutter={16}>
+                          <Col span={12}>
+                            <Form.Item
+                              {...field}
+                              name={[field.name, "coordinatorEmail"]}
+                              label="Coordinator Email"
+                              rules={[
+                                {
+                                  required: true,
+                                  message: "Please enter coordinator email",
+                                },
+                                {
+                                  type: "email",
+                                  message: "Please enter a valid email",
+                                },
+                              ]}
+                            >
+                              <Input placeholder="Coordinator Email" />
+                            </Form.Item>
+                          </Col>
+                          <Col span={12}>
+                            <Form.Item
+                              {...field}
+                              name={[field.name, "leadCompanyName"]}
+                              label="Lead Company Name"
+                              rules={[
+                                {
+                                  required: true,
+                                  message: "Please enter lead company name",
+                                },
+                              ]}
+                            >
+                              <Input placeholder="Lead Company Name" />
+                            </Form.Item>
+                          </Col>
+                        </Row>
+                        <Row gutter={16}>
+                          <Col span={12}>
+                            <Form.Item
+                              {...field}
+                              name={[field.name, "leadCompanyEmail"]}
+                              label="Lead Company Email"
+                              rules={[
+                                {
+                                  required: true,
+                                  message: "Please enter lead company email",
+                                },
+                                {
+                                  type: "email",
+                                  message: "Please enter a valid email",
+                                },
+                              ]}
+                            >
+                              <Input placeholder="Lead Company Email" />
+                            </Form.Item>
+                          </Col>
+                          <Col span={12}>
+                            <Form.Item
+                              {...field}
+                              name={[field.name, "notes"]}
+                              label="Call Notes"
+                              rules={[
+                                {
+                                  required: true,
+                                  message: "Please enter call notes",
+                                },
+                              ]}
+                            >
+                              <TextArea rows={2} placeholder="Call Notes" />
+                            </Form.Item>
+                          </Col>
+                        </Row>
+                        <Row gutter={16}>
+                          <Col span={12}>
+                            <Form.Item
+                              {...field}
+                              name={[field.name, "callCategory"]}
+                              label="Call Category"
+                              rules={[
+                                {
+                                  required: true,
+                                  message: "Please select call category",
+                                },
+                              ]}
+                            >
+                              <Radio.Group>
+                                <Radio value="hr">HR Round</Radio>
+                                <Radio value="technical">Technical Round</Radio>
+                              </Radio.Group>
+                            </Form.Item>
+                          </Col>
+                          <Col span={12}>
+                            <Form.Item
+                              {...field}
+                              name={[field.name, "callDate"]}
+                              label="Call Date"
+                              rules={[
+                                {
+                                  required: true,
+                                  message: "Please select call date",
+                                },
+                              ]}
+                            >
+                              <DatePicker style={{ width: "100%" }} />
+                            </Form.Item>
+                          </Col>
+                        </Row>
+                        <Form.Item
+                          {...field}
+                          name={[field.name, "callStatus"]}
+                          label="Call Status"
+                          rules={[
+                            {
+                              required: true,
+                              message: "Please select call status",
+                            },
+                          ]}
                         >
-                          Add Follow Up
-                        </Button>
-                      </div>
-                    )}
-                  </Form.List>
-                </Card>
-              ))}
-              <Button onClick={() => add()} block className="addButtons">
-                Add Call Schedule
-              </Button>
-            </div>
-          )}
-        </Form.List>
+                          <Select placeholder="Select Call Status">
+                            {callStatusOptions.map((option) => (
+                              <Select.Option
+                                key={option.value}
+                                value={option.value}
+                              >
+                                {option.label}
+                              </Select.Option>
+                            ))}
+                          </Select>
+                        </Form.Item>
 
-        <Form.Item>
-          <Button type="primary" htmlType="submit">
-            Submit
-          </Button>
-        </Form.Item>
-      </Form>
+                        {/* Follow Ups */}
+                        <Form.List name={[field.name, "followUps"]}>
+                          {(
+                            subFields,
+                            { add: addFollowUp, remove: removeFollowUp }
+                          ) => (
+                            <>
+                              <AnimatePresence>
+                                {subFields.map((subField, subIndex) => (
+                                  <motion.div
+                                    key={subField.key}
+                                    initial={{ opacity: 0, height: 0 }}
+                                    animate={{ opacity: 1, height: "auto" }}
+                                    exit={{ opacity: 0, height: 0 }}
+                                    style={{ overflow: "hidden" }}
+                                  >
+                                    <Card
+                                      type="inner"
+                                      title={`Follow Up ${subIndex + 1}`}
+                                      style={{ marginBottom: "20px" }}
+                                      extra={
+                                        <Button
+                                          type="link"
+                                          icon={<MinusCircleOutlined />}
+                                          onClick={() =>
+                                            removeFollowUp(subField.name)
+                                          }
+                                          danger
+                                        >
+                                          Remove
+                                        </Button>
+                                      }
+                                    >
+                                      <Row gutter={16}>
+                                        <Col span={12}>
+                                          <Form.Item
+                                            {...subField}
+                                            name={[
+                                              subField.name,
+                                              "followupDate",
+                                            ]}
+                                            label="Follow Up Date"
+                                            rules={[
+                                              {
+                                                required: true,
+                                                message: "Please select date",
+                                              },
+                                            ]}
+                                          >
+                                            <DatePicker
+                                              style={{ width: "100%" }}
+                                            />
+                                          </Form.Item>
+                                        </Col>
+                                        <Col span={12}>
+                                          <Form.Item
+                                            {...subField}
+                                            name={[subField.name, "callNotes"]}
+                                            label="Follow Up Notes"
+                                            rules={[
+                                              {
+                                                required: true,
+                                                message: "Please enter notes",
+                                              },
+                                            ]}
+                                          >
+                                            <TextArea
+                                              rows={2}
+                                              placeholder="Notes"
+                                            />
+                                          </Form.Item>
+                                        </Col>
+                                      </Row>
+                                    </Card>
+                                  </motion.div>
+                                ))}
+                              </AnimatePresence>
+                              <Form.Item>
+                                <Button
+                                  type="dashed"
+                                  onClick={() => addFollowUp()}
+                                  block
+                                  icon={<PlusOutlined />}
+                                  className="addButtons"
+                                >
+                                  Add Follow Up
+                                </Button>
+                              </Form.Item>
+                            </>
+                          )}
+                        </Form.List>
+                      </Card>
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
+                <Form.Item>
+                  <Button
+                    type="dashed"
+                    onClick={() => add()}
+                    block
+                    icon={<PlusOutlined />}
+                    className="addButtons"
+                  >
+                    Add Call Schedule
+                  </Button>
+                </Form.Item>
+              </>
+            )}
+          </Form.List>
+
+          {/* Submit Button */}
+          <Form.Item>
+            <Button type="primary" htmlType="submit" className="submit-button">
+              Submit
+            </Button>
+          </Form.Item>
+        </Form>
+      </Card>
     </div>
   );
 };

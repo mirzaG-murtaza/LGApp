@@ -1,47 +1,25 @@
 /* index.css */
 
 .form-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh; /* Centers the form vertically */
-  padding-top: 50px; /* Adds more space from the top */
-  padding-bottom: 50px; /* Adds space at the bottom */
-  background-color: #f9f9f9; /* Optional: Add a background color to make the form stand out */
+  padding: 50px 0;
+  background-color: #f9f9f9;
 }
 
-.ant-form {
+.custom-form {
   width: 100%;
-  max-width: 600px; /* Restrict the form's maximum width */
-  background-color: #ffffff; /* Optional: White background for the form */
-  padding: 20px; /* Add padding inside the form */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Optional: Add a subtle shadow */
-  border-radius: 8px; /* Optional: Rounded corners */
+  max-width: 800px;
+  margin: 0 auto;
 }
 
-.ant-form-item {
-  margin-bottom: 20px; /* Space between form items */
+.custom-form .ant-form-item {
+  margin-bottom: 20px;
 }
 
-.ant-btn-primary {
-  margin: 5%
+.submit-button {
+  width: 100%;
 }
 
-.followUpsContainer {
-  display: flex;
-  border: 2px solid #d9d9d9; /* Light grey border similar to Ant Design */
-  border-radius: 6px; /* Slightly rounded corners */
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15); /* Subtle shadow effect */
-  background-color: #fff; /* Ensure background is white */
-}
-
-.callScheduleStyle {
-  align-items: center;
-  box-Shadow: 0 4px 8px rgba(121, 121, 121, 0.6);
-  border-Color: #007bff,
-};
-
-.addButtons{
+.addButtons {
   border-color: green;
-  color: green 
+  color: green;
 }
