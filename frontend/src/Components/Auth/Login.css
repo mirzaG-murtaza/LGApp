@@ -146,8 +146,6 @@ html,
   justify-content: center;
 }
 
-
-
 .password-input.hidden {
   opacity: 0;
   transform: translateY(-10px);
